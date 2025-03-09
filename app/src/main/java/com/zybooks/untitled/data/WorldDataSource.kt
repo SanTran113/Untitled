@@ -1,6 +1,6 @@
 package com.zybooks.untitled.data;
 
-public class WorldDataSource {
+class WorldDataSource {
     private val worldList = listOf(
         World(
             galaxyid = 2,

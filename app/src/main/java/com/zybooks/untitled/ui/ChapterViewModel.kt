@@ -1,4 +1,9 @@
-package com.zybooks.untitled.ui;
+package com.zybooks.untitled.ui
 
-public class ChapterViewModel {
+import androidx.lifecycle.ViewModel
+import com.zybooks.untitled.data.Chapter
+import com.zybooks.untitled.data.ChapterDataSource
+
+class ChapterViewModel : ViewModel(){
+    fun getChapter(id: Int): Chapter = ChapterDataSource().getChapter(id) ?: Chapter()
 }

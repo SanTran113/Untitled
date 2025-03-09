@@ -1,4 +1,9 @@
-package com.zybooks.untitled.ui;
+package com.zybooks.untitled.ui
 
-public class StoryViewModel  {
+import androidx.lifecycle.ViewModel
+import com.zybooks.untitled.data.Story
+import com.zybooks.untitled.data.StoryDataSource
+
+class StoryViewModel : ViewModel() {
+    fun getStory(id: Int): Story = StoryDataSource().getStory(id) ?: Story()
 }

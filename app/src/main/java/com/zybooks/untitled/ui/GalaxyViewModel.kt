@@ -1,5 +1,8 @@
-package com.zybooks.untitled.ui;
+package com.zybooks.untitled.ui
 
-public class GalaxyViewModel {
+import GalaxyDataSource
+import androidx.lifecycle.ViewModel
 
+class GalaxyViewModel : ViewModel() {
+    val galaxyList = GalaxyDataSource().loadGalaxy()
 }
