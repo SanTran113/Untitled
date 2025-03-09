@@ -49,9 +49,30 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.zybooks.untitled.R
 import com.zybooks.untitled.Task
 import com.zybooks.untitled.ui.theme.ToDoListTheme
+import kotlinx.serialization.Serializable
+
+sealed class Routes {
+   @Serializable
+   data object Galaxy
+
+   @Serializable
+   data class World(
+      val worldId: Int
+   )
+
+   @Serializable
+   data class Story(
+      val storyId: Int
+   )
+
+   @Serializable
+   data class Chapter(
+      val chapterId: Int
+   )
+}
+
 
 @Composable
 fun ToDoScreen(
@@ -117,19 +138,6 @@ fun TaskList(
             }
          )
 
-         SwipeToDismiss(
-            state = dismissState,
-            background = { SwipeBackground(dismissState) },
-            modifier = Modifier
-               .padding(vertical = 1.dp)
-               .animateItemPlacement(),
-            dismissContent = {
-               TaskCard(
-                  task = task,
-                  toggleCompleted = onToggleTaskComplete
-               )
-            }
-         )
       }
    }
 }
@@ -168,41 +176,6 @@ fun TaskCard(
    }
 }
 
-@Composable
-@OptIn(ExperimentalMaterial3Api::class)
-fun SwipeBackground(
-   dismissState: DismissState,
-   modifier: Modifier = Modifier
-) {
-   val color = when (dismissState.dismissDirection) {
-      DismissDirection.EndToStart -> Color.Green
-      DismissDirection.StartToEnd -> Color.Red
-      null -> Color.Transparent
-   }
-
-   Row(
-      modifier
-         .fillMaxSize()
-         .background(color)
-         .padding(horizontal = 15.dp),
-      verticalAlignment = Alignment.CenterVertically,
-      horizontalArrangement = Arrangement.SpaceBetween
-   ) {
-      if (dismissState.dismissDirection == DismissDirection.StartToEnd) {
-         Icon(
-            Icons.Default.Delete,
-            contentDescription = "Delete",
-         )
-      }
-      Spacer(modifier = Modifier)
-      if (dismissState.dismissDirection == DismissDirection.EndToStart) {
-         Icon(
-            painter = painterResource(R.drawable.archive),
-            contentDescription = "Archive",
-         )
-      }
-   }
-}
 
 @Composable
 fun AddTaskInput(onEnterTask: (String) -> Unit) {
@@ -285,6 +258,10 @@ fun ToDoAppTopBar(
       }
    )
 }
+
+
+
+
 
 @Preview(showBackground = true)
 @Composable
