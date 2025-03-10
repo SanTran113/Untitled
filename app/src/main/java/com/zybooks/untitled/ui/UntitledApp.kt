@@ -69,7 +69,9 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.stringResource
+import androidx.navigation.toRoute
 import com.zybooks.todolist.R
+import com.zybooks.untitled.data.ChapterDataSource
 import com.zybooks.untitled.data.Galaxy
 import com.zybooks.untitled.data.Story
 import com.zybooks.untitled.data.StoryDataSource
@@ -95,24 +97,59 @@ sealed class Routes {
    )
 }
 
-//@Composable
-//fun UntitledApp() {
-//   val navController = rememberNavController()
-//
-//   NavHost(
-//      navController = navController,
-//      startDestination = Routes.Galaxy
-//   ) {
-//      composable<Routes.Galaxy> {
-//         GalaxyScreen(
-//            onImageClick = { world ->
-//               navController.navigate(
-//                  Routes.World(world.id)
-//               )
-//            }
-//         )
-//      }
-//}
+@Composable
+fun UntitledApp() {
+   val navController = rememberNavController()
+
+   NavHost(
+      navController = navController,
+      startDestination = Routes.Galaxy
+   ) {
+      composable<Routes.Galaxy> {
+         GalaxyScreen(
+            onImageClick = { world ->
+               navController.navigate(
+                  Routes.World(world.galaxyid)
+               )
+            }
+         )
+      }
+      composable<Routes.World> { backstackEntry ->
+         val world: Routes.World = backstackEntry.toRoute()
+
+         WorldScreen(
+            worldId = world.worldId,
+            onStoryClick = { storyId ->
+               navController.navigate(
+                  Routes.Story(storyId)
+               )
+            }
+         )
+      }
+      composable<Routes.Story> { backstackEntry ->
+         val story: Routes.Story = backstackEntry.toRoute()
+
+         StoryScreen(
+            storyId = story.storyId,
+            onChapterClick = { chapterId ->
+               navController.navigate(
+                  Routes.Chapter(chapterId)
+               )
+            }
+         )
+      }
+
+      composable<Routes.Chapter> { backstackEntry ->
+         val chapter: Routes.Chapter = backstackEntry.toRoute()
+
+         // Add your ChapterScreen composable here
+         ChapterScreen(
+            chapterId = chapter.chapterId
+         )
+
+      }
+   }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -229,11 +266,12 @@ fun ExpandableSection(
 @Composable
 fun WorldScreen(
    worldId: Int,
-   onStoryClick: () -> Unit,
+   onStoryClick: (Int) -> Unit,
    modifier: Modifier = Modifier,
    viewModel: WorldViewModel = viewModel(),
 ) {
    val world = viewModel.getWorld(worldId)
+   viewModel.loadStories(worldId)
    val storyList = viewModel.storyList
 
    Scaffold(
@@ -243,18 +281,25 @@ fun WorldScreen(
          )
       }
    ) { innerPadding ->
-      LazyVerticalGrid(
-         columns = GridCells.Adaptive(minSize = 128.dp),
-         contentPadding = PaddingValues(0.dp),
+      Column(
          modifier = modifier.padding(innerPadding)
       ) {
-         items(storyList) { story ->
-            ExpandableSection(modifier = modifier, title = story.storyname) {
-               Text(
-                  modifier = Modifier.padding(8.dp),
-                  text = story.synopsis,
-                  color = MaterialTheme.colorScheme.onSecondaryContainer
-               )
+         LazyColumn {
+            items(storyList) { story ->
+               ExpandableSection(modifier = modifier, title = story.storyname) {
+                  Text(
+                     modifier = Modifier.padding(8.dp),
+                     text = story.synopsis,
+                     color = MaterialTheme.colorScheme.onSecondaryContainer
+                  )
+                  Text(
+                     modifier = Modifier
+                        .clickable { onStoryClick(story.storyid) }
+                        .padding(8.dp),
+                     text = "View Chapters",
+                     color = MaterialTheme.colorScheme.primary
+                  )
+               }
             }
          }
       }
@@ -264,7 +309,7 @@ fun WorldScreen(
 @Composable
 fun StoryScreen(
    storyId: Int,
-   onChapterClick: () -> Unit,
+   onChapterClick: (Int) -> Unit,
    modifier: Modifier = Modifier,
    viewModel: StoryViewModel = viewModel(),
 ) {
@@ -296,7 +341,9 @@ fun StoryScreen(
          )
          LazyColumn {
             items(chapterList) { chapter ->
-               Row (modifier = Modifier.fillMaxWidth(),
+               Row (modifier = Modifier
+                  .fillMaxWidth()
+                  .clickable { onChapterClick(chapter.chapterid)},
                      horizontalArrangement = Arrangement.SpaceBetween
                ) {
                   Text(chapter.chaptername)
@@ -316,129 +363,152 @@ fun StoryScreen(
 }
 
 @Composable
-fun ToDoScreen(
+fun ChapterScreen(
+   chapterId: Int,
    modifier: Modifier = Modifier,
-   todoViewModel: ToDoViewModel = viewModel()
+   viewModel: ChapterViewModel = viewModel(),
 ) {
+   val chapter = viewModel.getChapter(chapterId)
+
    Scaffold(
       topBar = {
-         ToDoAppTopBar(
-            completedTasksExist = todoViewModel.completedTasksExist,
-            onDeleteCompletedTasks = todoViewModel::deleteCompletedTasks,
-            onCreateTasks = todoViewModel::createTestTasks,
-            archivedTasksExist = todoViewModel.archivedTasksExist,
-            onRestoreArchive = todoViewModel::restoreArchivedTasks
+         PetAppBar(
+            title = chapter.chaptername
          )
       }
    ) { innerPadding ->
       Column(
-         modifier = modifier
-            .fillMaxSize()
-            .padding(innerPadding),
+         modifier = modifier.padding(innerPadding)
       ) {
-         AddTaskInput(todoViewModel::addTask)
-         TaskList(
-            taskList = todoViewModel.taskList,
-            onDeleteTask = todoViewModel::deleteTask,
-            onArchiveTask = todoViewModel::archiveTask,
-            onToggleTaskComplete = todoViewModel::toggleTaskCompleted
-         )
-      }
-   }
-}
-
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
-@Composable
-fun TaskList(
-   taskList: List<Task>,
-   onDeleteTask: (Task) -> Unit,
-   onArchiveTask: (Task) -> Unit,
-   onToggleTaskComplete: (Task) -> Unit
-) {
-   LazyColumn {
-      items(
-         items = taskList,
-         key = { task -> task.id }
-      ) { task ->
-         val currentTask by rememberUpdatedState(task)
-         val dismissState = rememberDismissState(
-            confirmValueChange = {
-               when (it) {
-                  DismissValue.DismissedToEnd -> {
-                     onDeleteTask(currentTask)
-                     true
-                  }
-
-                  DismissValue.DismissedToStart -> {
-                     onArchiveTask(currentTask)
-                     true
-                  }
-
-                  else -> false
-               }
-            }
-         )
 
       }
    }
 }
 
-@Composable
-fun TaskCard(
-   task: Task,
-   toggleCompleted: (Task) -> Unit,
-   modifier: Modifier = Modifier
-) {
-   Card(
-      modifier = modifier
-         .padding(8.dp)
-         .fillMaxWidth(),
-      colors = CardDefaults.cardColors(
-         containerColor = MaterialTheme.colorScheme.surfaceVariant
-      )
-   ) {
-      Row(
-         modifier = modifier.fillMaxWidth(),
-         verticalAlignment = Alignment.CenterVertically,
-         horizontalArrangement = Arrangement.SpaceBetween
-      ) {
-         Text(
-            text = task.body,
-            modifier = modifier.padding(start = 12.dp),
-            color = if (task.completed) Color.Gray else Color.Black
-         )
-         Checkbox(
-            checked = task.completed,
-            onCheckedChange = {
-               toggleCompleted(task)
-            }
-         )
-      }
-   }
-}
-
-
-@Composable
-fun AddTaskInput(onEnterTask: (String) -> Unit) {
-   val keyboardController = LocalSoftwareKeyboardController.current
-   var taskBody by remember { mutableStateOf("") }
-
-   OutlinedTextField(
-      modifier = Modifier
-         .fillMaxWidth()
-         .padding(6.dp),
-      value = taskBody,
-      onValueChange = { taskBody = it },
-      label = { Text("Enter task") },
-      keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-      keyboardActions = KeyboardActions(
-         onDone = {
-            onEnterTask(taskBody)
-            taskBody = ""
-            keyboardController?.hide()
-         }),
-   )
-}
+//@Composable
+//fun ToDoScreen(
+//   modifier: Modifier = Modifier,
+//   todoViewModel: ToDoViewModel = viewModel()
+//) {
+//   Scaffold(
+//      topBar = {
+//         ToDoAppTopBar(
+//            completedTasksExist = todoViewModel.completedTasksExist,
+//            onDeleteCompletedTasks = todoViewModel::deleteCompletedTasks,
+//            onCreateTasks = todoViewModel::createTestTasks,
+//            archivedTasksExist = todoViewModel.archivedTasksExist,
+//            onRestoreArchive = todoViewModel::restoreArchivedTasks
+//         )
+//      }
+//   ) { innerPadding ->
+//      Column(
+//         modifier = modifier
+//            .fillMaxSize()
+//            .padding(innerPadding),
+//      ) {
+//         AddTaskInput(todoViewModel::addTask)
+//         TaskList(
+//            taskList = todoViewModel.taskList,
+//            onDeleteTask = todoViewModel::deleteTask,
+//            onArchiveTask = todoViewModel::archiveTask,
+//            onToggleTaskComplete = todoViewModel::toggleTaskCompleted
+//         )
+//      }
+//   }
+//}
+//
+//@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+//@Composable
+//fun TaskList(
+//   taskList: List<Task>,
+//   onDeleteTask: (Task) -> Unit,
+//   onArchiveTask: (Task) -> Unit,
+//   onToggleTaskComplete: (Task) -> Unit
+//) {
+//   LazyColumn {
+//      items(
+//         items = taskList,
+//         key = { task -> task.id }
+//      ) { task ->
+//         val currentTask by rememberUpdatedState(task)
+//         val dismissState = rememberDismissState(
+//            confirmValueChange = {
+//               when (it) {
+//                  DismissValue.DismissedToEnd -> {
+//                     onDeleteTask(currentTask)
+//                     true
+//                  }
+//
+//                  DismissValue.DismissedToStart -> {
+//                     onArchiveTask(currentTask)
+//                     true
+//                  }
+//
+//                  else -> false
+//               }
+//            }
+//         )
+//
+//      }
+//   }
+//}
+//
+//@Composable
+//fun TaskCard(
+//   task: Task,
+//   toggleCompleted: (Task) -> Unit,
+//   modifier: Modifier = Modifier
+//) {
+//   Card(
+//      modifier = modifier
+//         .padding(8.dp)
+//         .fillMaxWidth(),
+//      colors = CardDefaults.cardColors(
+//         containerColor = MaterialTheme.colorScheme.surfaceVariant
+//      )
+//   ) {
+//      Row(
+//         modifier = modifier.fillMaxWidth(),
+//         verticalAlignment = Alignment.CenterVertically,
+//         horizontalArrangement = Arrangement.SpaceBetween
+//      ) {
+//         Text(
+//            text = task.body,
+//            modifier = modifier.padding(start = 12.dp),
+//            color = if (task.completed) Color.Gray else Color.Black
+//         )
+//         Checkbox(
+//            checked = task.completed,
+//            onCheckedChange = {
+//               toggleCompleted(task)
+//            }
+//         )
+//      }
+//   }
+//}
+//
+//
+//@Composable
+//fun AddTaskInput(onEnterTask: (String) -> Unit) {
+//   val keyboardController = LocalSoftwareKeyboardController.current
+//   var taskBody by remember { mutableStateOf("") }
+//
+//   OutlinedTextField(
+//      modifier = Modifier
+//         .fillMaxWidth()
+//         .padding(6.dp),
+//      value = taskBody,
+//      onValueChange = { taskBody = it },
+//      label = { Text("Enter task") },
+//      keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+//      keyboardActions = KeyboardActions(
+//         onDone = {
+//            onEnterTask(taskBody)
+//            taskBody = ""
+//            keyboardController?.hide()
+//         }),
+//   )
+//}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -536,12 +606,24 @@ fun PreviewStoryScreen() {
    }
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
-fun ToDoScreenPreview() {
-   val viewModel = ToDoViewModel()
-   viewModel.createTestTasks()
+fun PreviewChapterScreen() {
    ToDoListTheme {
-      ToDoScreen(todoViewModel = viewModel)
+      ChapterScreen(
+         chapterId = 1
+      )
    }
 }
+
+
+//@Preview(showBackground = true)
+//@Composable
+//fun ToDoScreenPreview() {
+//   val viewModel = ToDoViewModel()
+//   viewModel.createTestTasks()
+//   ToDoListTheme {
+//      ToDoScreen(todoViewModel = viewModel)
+//   }
+//}
+

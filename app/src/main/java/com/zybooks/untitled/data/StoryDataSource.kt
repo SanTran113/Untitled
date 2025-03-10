@@ -6,14 +6,14 @@ class StoryDataSource {
             worldid = 1,
             storyid = 1,
             storyname = "Amp Story",
-            synopsis = "",
+            synopsis = "This is Amp Story 1's synopsis",
             scratchpad = ""
         ),
         Story(
             worldid = 1,
             storyid = 2,
             storyname = "Amp Story 2",
-            synopsis = "",
+            synopsis = "This is Amp Story 2's synopsis",
             scratchpad = ""
         ),
     )

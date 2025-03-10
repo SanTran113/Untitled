@@ -11,11 +11,6 @@ class GalaxyViewModel : ViewModel() {
     val worldDataSource = WorldDataSource()
     val worldList =  mutableStateListOf<World>()
 
-    fun galaxyList() {
-
-    }
-
-
     fun addWorld(world: World) {
         worldList.add(world)
     }
