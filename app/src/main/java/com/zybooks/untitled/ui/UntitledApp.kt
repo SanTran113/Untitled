@@ -1,15 +1,22 @@
 package com.zybooks.untitled.ui
 
+import android.adservices.adid.AdId
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -20,8 +27,6 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DismissDirection
-import androidx.compose.material3.DismissState
 import androidx.compose.material3.DismissValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -29,7 +34,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
@@ -49,9 +53,25 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.zybooks.untitled.Task
+import com.zybooks.untitled.data.World
 import com.zybooks.untitled.ui.theme.ToDoListTheme
 import kotlinx.serialization.Serializable
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.rounded.KeyboardArrowDown
+import androidx.compose.material.icons.rounded.KeyboardArrowUp
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.res.stringResource
+import com.zybooks.todolist.R
+import com.zybooks.untitled.data.Galaxy
+import com.zybooks.untitled.data.Story
+import com.zybooks.untitled.data.WorldDataSource
 
 sealed class Routes {
    @Serializable
@@ -72,6 +92,160 @@ sealed class Routes {
       val chapterId: Int
    )
 }
+
+//@Composable
+//fun UntitledApp() {
+//   val navController = rememberNavController()
+//
+//   NavHost(
+//      navController = navController,
+//      startDestination = Routes.Galaxy
+//   ) {
+//      composable<Routes.Galaxy> {
+//         GalaxyScreen(
+//            onImageClick = { world ->
+//               navController.navigate(
+//                  Routes.World(world.id)
+//               )
+//            }
+//         )
+//      }
+//}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PetAppBar(
+   title: String,
+   modifier: Modifier = Modifier,
+   canNavigateBack: Boolean = false,
+   onUpClick: () -> Unit = { },
+) {
+   TopAppBar(
+      title = { Text(title) },
+      colors = TopAppBarDefaults.topAppBarColors(
+         containerColor = MaterialTheme.colorScheme.primaryContainer
+      ),
+      modifier = modifier,
+      navigationIcon = {
+         if (canNavigateBack) {
+            IconButton(onClick = onUpClick) {
+               Icon(Icons.Filled.ArrowBack, "Back")
+            }
+         }
+      }
+   )
+}
+
+@Composable
+fun GalaxyScreen(
+   onImageClick: (Galaxy) -> Unit,
+   modifier: Modifier = Modifier,
+   viewModel: GalaxyViewModel = viewModel()
+) {
+   Scaffold(
+      topBar = {
+         PetAppBar(
+            title = "Find a Friend"
+         )
+      }
+   ) { innerPadding ->
+      LazyVerticalGrid(
+         columns = GridCells.Adaptive(minSize = 128.dp),
+         contentPadding = PaddingValues(0.dp),
+         modifier = modifier.padding(innerPadding)
+      ) {
+         items(viewModel.galaxyList) { galaxy ->
+            Image(
+               painter = painterResource(id = galaxy.imageId),
+               contentDescription = "Part of ${galaxy.galaxyname}",
+               modifier = Modifier.clickable(
+                  onClick = { onImageClick(galaxy) },
+                  onClickLabel = "Select the world"
+               )
+            )
+         }
+      }
+   }
+}
+
+@Composable
+fun ExpandableSectionTitle(modifier: Modifier = Modifier, isExpanded: Boolean, title: String) {
+
+   val icon = if (isExpanded) Icons.Rounded.KeyboardArrowUp else Icons.Rounded.KeyboardArrowDown
+
+   Row(modifier = modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
+      Image(
+         modifier = Modifier.size(32.dp),
+         imageVector = icon,
+         colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onPrimaryContainer),
+         contentDescription = stringResource(id = R.string.expand_or_collapse)
+      )
+      Text(text = title, style = MaterialTheme.typography.headlineMedium)
+   }
+}
+
+@Composable
+fun ExpandableSection(
+   modifier: Modifier = Modifier,
+   title: String,
+   content: @Composable () -> Unit
+) {
+   var isExpanded by rememberSaveable { mutableStateOf(false) }
+   Column(
+      modifier = modifier
+         .clickable { isExpanded = !isExpanded }
+         .background(color = MaterialTheme.colorScheme.primaryContainer)
+         .fillMaxWidth()
+   ) {
+      ExpandableSectionTitle(isExpanded = isExpanded, title = title)
+
+      AnimatedVisibility(
+         modifier = Modifier
+            .background(MaterialTheme.colorScheme.secondaryContainer)
+            .fillMaxWidth(),
+         visible = isExpanded
+      ) {
+         content()
+      }
+   }
+}
+
+@Composable
+fun WorldScreen(
+   worldId: Int,
+   onStoryClick: () -> Unit,
+   modifier: Modifier = Modifier,
+   viewModel: WorldViewModel = viewModel(),
+) {
+   val world = viewModel.getWorld(worldId)
+
+   Scaffold(
+      topBar = {
+         PetAppBar(
+            title = world.worldname
+         )
+      }
+   ) { innerPadding ->
+      LazyVerticalGrid(
+         columns = GridCells.Adaptive(minSize = 128.dp),
+         contentPadding = PaddingValues(0.dp),
+         modifier = modifier.padding(innerPadding)
+      ) {
+         item {
+            ExpandableSection(modifier = modifier, title = story) {
+               Text(
+                  modifier = Modifier.padding(8.dp),
+                  text = instructions,
+                  color = MaterialTheme.colorScheme.onSecondaryContainer
+               )
+            }
+         }
+      }
+   }
+}
+
+
+
 
 
 @Composable
@@ -261,6 +435,28 @@ fun ToDoAppTopBar(
 
 
 
+@Preview
+@Composable
+fun PreviewGalaxyScreen() {
+   ToDoListTheme {
+      GalaxyScreen(
+         onImageClick = {}
+      )
+   }
+}
+
+@Preview
+@Composable
+fun PreviewWorldScreen() {
+   val world = WorldDataSource().loadWorld()[0]
+   ToDoListTheme {
+      WorldScreen(
+         worldId = world.worldid,
+         galaxyId = world.galaxyid,
+         onStoryClick = {}
+      )
+   }
+}
 
 
 @Preview(showBackground = true)

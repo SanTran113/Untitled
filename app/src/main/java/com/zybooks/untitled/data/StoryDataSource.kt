@@ -22,5 +22,9 @@ class StoryDataSource {
         return storyList.find { it.storyid == id }
     }
 
+    fun getStoryListFromWorld(worldid: Int): List<Story> {
+        return storyList.filter { it.worldid == worldid }
+    }
+
     fun loadStory() = storyList
 }

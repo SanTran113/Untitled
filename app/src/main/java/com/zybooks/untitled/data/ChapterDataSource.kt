@@ -36,5 +36,8 @@ class ChapterDataSource {
         return chapterList.find { it.chapterid == id }
     }
 
-    fun loadChapter() = chapterList
+    fun loadChapterListFromStory(storyId: Int): List<Chapter> {
+        return chapterList.filter { it.storyid == storyId }
+    }
+
 }

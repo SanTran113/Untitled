@@ -13,5 +13,5 @@ class WorldDataSource {
         return worldList.find { it.worldid == id }
     }
 
-    fun loadWorld() = worldList
+    fun loadWorlds() = worldList
 }
