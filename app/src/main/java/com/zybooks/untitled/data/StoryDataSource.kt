@@ -26,5 +26,5 @@ class StoryDataSource {
         return storyList.filter { it.worldid == worldid }
     }
 
-    fun loadStory() = storyList
+    fun loadAllStories() = storyList
 }

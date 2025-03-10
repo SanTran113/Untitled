@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -71,6 +72,7 @@ import androidx.compose.ui.res.stringResource
 import com.zybooks.todolist.R
 import com.zybooks.untitled.data.Galaxy
 import com.zybooks.untitled.data.Story
+import com.zybooks.untitled.data.StoryDataSource
 import com.zybooks.untitled.data.WorldDataSource
 
 sealed class Routes {
@@ -154,7 +156,7 @@ fun GalaxyScreen(
          contentPadding = PaddingValues(0.dp),
          modifier = modifier.padding(innerPadding)
       ) {
-         items(viewModel.galaxyList) { galaxy ->
+         items(viewModel.galaxyDataSource) { galaxy ->
             Image(
                painter = painterResource(id = galaxy.imageId),
                contentDescription = "Part of ${galaxy.galaxyname}",
@@ -169,20 +171,34 @@ fun GalaxyScreen(
 }
 
 @Composable
-fun ExpandableSectionTitle(modifier: Modifier = Modifier, isExpanded: Boolean, title: String) {
-
+fun ExpandableSectionTitle(
+   modifier: Modifier = Modifier,
+   isExpanded: Boolean,
+   title: String
+) {
    val icon = if (isExpanded) Icons.Rounded.KeyboardArrowUp else Icons.Rounded.KeyboardArrowDown
+   val contentDescription = if (isExpanded) "Collapse section" else "Expand section"
 
-   Row(modifier = modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
+   Row(
+      modifier = modifier
+         .fillMaxWidth()
+         .padding(8.dp),
+      verticalAlignment = Alignment.CenterVertically
+   ) {
       Image(
          modifier = Modifier.size(32.dp),
          imageVector = icon,
-         colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onPrimaryContainer),
-         contentDescription = stringResource(id = R.string.expand_or_collapse)
+         colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimaryContainer),
+         contentDescription = contentDescription
       )
-      Text(text = title, style = MaterialTheme.typography.headlineMedium)
+      Text(
+         text = title,
+         style = MaterialTheme.typography.headlineMedium,
+         modifier = Modifier.padding(start = 8.dp)
+      )
    }
 }
+
 
 @Composable
 fun ExpandableSection(
@@ -218,6 +234,7 @@ fun WorldScreen(
    viewModel: WorldViewModel = viewModel(),
 ) {
    val world = viewModel.getWorld(worldId)
+   val storyList = viewModel.storyList
 
    Scaffold(
       topBar = {
@@ -231,11 +248,11 @@ fun WorldScreen(
          contentPadding = PaddingValues(0.dp),
          modifier = modifier.padding(innerPadding)
       ) {
-         item {
-            ExpandableSection(modifier = modifier, title = story) {
+         items(storyList) { story ->
+            ExpandableSection(modifier = modifier, title = story.storyname) {
                Text(
                   modifier = Modifier.padding(8.dp),
-                  text = instructions,
+                  text = story.synopsis,
                   color = MaterialTheme.colorScheme.onSecondaryContainer
                )
             }
@@ -244,9 +261,59 @@ fun WorldScreen(
    }
 }
 
+@Composable
+fun StoryScreen(
+   storyId: Int,
+   onChapterClick: () -> Unit,
+   modifier: Modifier = Modifier,
+   viewModel: StoryViewModel = viewModel(),
+) {
+   val story = viewModel.getStory(storyId)
+   val chapterList = viewModel.chapterList
 
+   Scaffold(
+      topBar = {
+         PetAppBar(
+            title = story.storyname
+         )
+      }
+   ) { innerPadding ->
+      Column(
+         modifier = modifier.padding(innerPadding)
+      ) {
+         // Synopsis
+         ExpandableSection(modifier = modifier, title = "Synopsis") {
+            Text(
+               modifier = Modifier.padding(8.dp),
+               text = story.synopsis,
+               color = MaterialTheme.colorScheme.onSecondaryContainer
+            )
+         }
+         // Chapters
+         Text(
+            text = "Chapters",
+            style = MaterialTheme.typography.headlineMedium
+         )
+         LazyColumn {
+            items(chapterList) { chapter ->
+               Row (modifier = Modifier.fillMaxWidth(),
+                     horizontalArrangement = Arrangement.SpaceBetween
+               ) {
+                  Text(chapter.chaptername)
+                  Text((chapter.wordcount).toString())
+               }
+            }
+         }
 
+         // Scratch Pad
+         Text(
+            text = "Scratch Pad",
+            style = MaterialTheme.typography.headlineMedium
+         )
 
+      }
+   }
+}
 
 @Composable
 fun ToDoScreen(
@@ -448,16 +515,26 @@ fun PreviewGalaxyScreen() {
 @Preview
 @Composable
 fun PreviewWorldScreen() {
-   val world = WorldDataSource().loadWorld()[0]
+   val world = WorldDataSource().loadWorlds()[0]
    ToDoListTheme {
       WorldScreen(
          worldId = world.worldid,
-         galaxyId = world.galaxyid,
          onStoryClick = {}
       )
    }
 }
 
+@Preview
+@Composable
+fun PreviewStoryScreen() {
+   val story = StoryDataSource().loadAllStories()[0]
+   ToDoListTheme {
+      StoryScreen(
+         storyId = story.storyid,
+         onChapterClick = {}
+      )
+   }
+}
 
 @Preview(showBackground = true)
 @Composable
