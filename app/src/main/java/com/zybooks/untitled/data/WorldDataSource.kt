@@ -3,7 +3,12 @@ package com.zybooks.untitled.data;
 class WorldDataSource {
     private val worldList = listOf(
         World(
-            galaxyid = 2,
+            galaxyid = 0,
+            worldid = 0,
+            worldname = "Trigger World",
+        ),
+        World(
+            galaxyid = 1,
             worldid = 1,
             worldname = "Amp World",
         ),

@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.zybooks.todolist"
+    namespace = "com.zybooks.untitled"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.zybooks.todolist"
+        applicationId = "com.zybooks.untitled"
         minSdk = 24
         targetSdk = 34
         versionCode = 1

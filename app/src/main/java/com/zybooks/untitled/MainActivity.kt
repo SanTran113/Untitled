@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.zybooks.untitled.ui.ToDoScreen
+import com.zybooks.untitled.ui.UntitledApp
 import com.zybooks.untitled.ui.theme.ToDoListTheme
 
 class MainActivity : ComponentActivity() {
@@ -19,7 +19,7 @@ class MainActivity : ComponentActivity() {
                modifier = Modifier.fillMaxSize(),
                color = MaterialTheme.colorScheme.background
             ) {
-               ToDoScreen()
+               UntitledApp()
             }
          }
       }

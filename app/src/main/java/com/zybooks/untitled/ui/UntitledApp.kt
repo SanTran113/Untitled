@@ -70,7 +70,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.toRoute
-import com.zybooks.todolist.R
 import com.zybooks.untitled.data.ChapterDataSource
 import com.zybooks.untitled.data.Galaxy
 import com.zybooks.untitled.data.Story
@@ -287,18 +286,21 @@ fun WorldScreen(
          LazyColumn {
             items(storyList) { story ->
                ExpandableSection(modifier = modifier, title = story.storyname) {
-                  Text(
-                     modifier = Modifier.padding(8.dp),
-                     text = story.synopsis,
-                     color = MaterialTheme.colorScheme.onSecondaryContainer
-                  )
-                  Text(
-                     modifier = Modifier
-                        .clickable { onStoryClick(story.storyid) }
-                        .padding(8.dp),
-                     text = "View Chapters",
-                     color = MaterialTheme.colorScheme.primary
-                  )
+                  Column {
+                     Text(
+                        modifier = Modifier.padding(8.dp),
+                        text = story.synopsis,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                     )
+                     Text(
+                        modifier = Modifier
+                           .clickable { onStoryClick(story.storyid) }
+                           .padding(8.dp),
+                        text = "View Chapters",
+                        color = MaterialTheme.colorScheme.primary
+                     )
+                  }
+
                }
             }
          }
@@ -314,6 +316,7 @@ fun StoryScreen(
    viewModel: StoryViewModel = viewModel(),
 ) {
    val story = viewModel.getStory(storyId)
+   viewModel.loadChapters(storyId)
    val chapterList = viewModel.chapterList
 
    Scaffold(
