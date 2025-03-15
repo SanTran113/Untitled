@@ -122,6 +122,9 @@ fun UntitledApp() {
                navController.navigate(
                   Routes.Story(storyId)
                )
+            },
+            onUpClick = {
+               navController.navigateUp()
             }
          )
       }
@@ -134,6 +137,9 @@ fun UntitledApp() {
                navController.navigate(
                   Routes.Chapter(chapterId)
                )
+            },
+            onUpClick = {
+               navController.navigateUp()
             }
          )
       }
@@ -143,7 +149,10 @@ fun UntitledApp() {
 
          // Add your ChapterScreen composable here
          ChapterScreen(
-            chapterId = chapter.chapterId
+            chapterId = chapter.chapterId,
+            onUpClick = {
+               navController.navigateUp()
+            }
          )
 
       }
@@ -183,7 +192,7 @@ fun GalaxyScreen(
    Scaffold(
       topBar = {
          PetAppBar(
-            title = "Find a Friend"
+            title = "Galaxy"
          )
       }
    ) { innerPadding ->
@@ -268,6 +277,7 @@ fun WorldScreen(
    onStoryClick: (Int) -> Unit,
    modifier: Modifier = Modifier,
    viewModel: WorldViewModel = viewModel(),
+   onUpClick: () -> Unit = { }
 ) {
    val world = viewModel.getWorld(worldId)
    viewModel.loadStories(worldId)
@@ -276,7 +286,9 @@ fun WorldScreen(
    Scaffold(
       topBar = {
          PetAppBar(
-            title = world.worldname
+            onUpClick = onUpClick,
+            title = world.worldname,
+            canNavigateBack = true,
          )
       }
    ) { innerPadding ->
@@ -314,6 +326,7 @@ fun StoryScreen(
    onChapterClick: (Int) -> Unit,
    modifier: Modifier = Modifier,
    viewModel: StoryViewModel = viewModel(),
+   onUpClick: () -> Unit = { }
 ) {
    val story = viewModel.getStory(storyId)
    viewModel.loadChapters(storyId)
@@ -322,6 +335,8 @@ fun StoryScreen(
    Scaffold(
       topBar = {
          PetAppBar(
+            onUpClick = onUpClick,
+            canNavigateBack = true,
             title = story.storyname
          )
       }
@@ -370,12 +385,15 @@ fun ChapterScreen(
    chapterId: Int,
    modifier: Modifier = Modifier,
    viewModel: ChapterViewModel = viewModel(),
+   onUpClick: () -> Unit = { }
 ) {
    val chapter = viewModel.getChapter(chapterId)
 
    Scaffold(
       topBar = {
          PetAppBar(
+            canNavigateBack = true,
+            onUpClick = onUpClick,
             title = chapter.chaptername
          )
       }
