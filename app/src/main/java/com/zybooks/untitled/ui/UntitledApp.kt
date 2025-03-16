@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -44,6 +45,7 @@ import androidx.navigation.compose.rememberNavController
 import com.zybooks.untitled.ui.theme.ToDoListTheme
 import kotlinx.serialization.Serializable
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
@@ -52,7 +54,12 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.toRoute
 import com.zybooks.untitled.data.Galaxy
 import com.zybooks.untitled.data.StoryDataSource
@@ -145,18 +152,22 @@ fun UntitledApp() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PetAppBar(
+fun UntitledAppBar(
    title: String,
    modifier: Modifier = Modifier,
    canNavigateBack: Boolean = false,
    onUpClick: () -> Unit = { },
 ) {
    CenterAlignedTopAppBar (
-      title = { Text(title) },
+      modifier = Modifier.padding(10.dp),
+      title = { Text(
+         title,
+         style = MaterialTheme.typography.headlineLarge,
+         fontWeight = FontWeight.SemiBold,
+      ) },
       colors = TopAppBarDefaults.topAppBarColors(
-         containerColor = MaterialTheme.colorScheme.primaryContainer
+//         containerColor = MaterialTheme.colorScheme.primaryContainer
       ),
-      modifier = modifier,
       navigationIcon = {
          if (canNavigateBack) {
             IconButton(onClick = onUpClick) {
@@ -164,6 +175,23 @@ fun PetAppBar(
             }
          }
       }
+   )
+}
+
+@Composable
+fun BottomButton(
+   text: String,
+   onClick: () -> Unit = { }
+) {
+   ExtendedFloatingActionButton(
+      onClick = { onClick() },
+      icon = { Icon(Icons.Filled.Add, "BottomButton") },
+      text = { Text(
+         text = text,
+         fontFamily = FontFamily.SansSerif,
+         fontWeight = FontWeight.SemiBold
+      ) },
+      shape = RoundedCornerShape(50)
    )
 }
 
@@ -176,17 +204,19 @@ fun GalaxyScreen(
 ) {
    Scaffold(
       floatingActionButton = {
-         ExtendedFloatingActionButton(
-            onClick = { onWorldButtonClick() },
-            icon = { Icon(Icons.Filled.Add, "World") },
-            text = { Text(text = "World") },
-         )
+         BottomButton("World", onWorldButtonClick)
       }
    ) { innerPadding ->
       Column {
          Text(
-            modifier = Modifier.padding(8.dp),
-            text = "Welcome to Your Galaxy",
+            modifier = Modifier
+               .padding(50.dp)
+               .fillMaxWidth(),
+            text = "WELCOME TO YOUR GALAXY",
+            style = MaterialTheme.typography.headlineLarge,
+            textAlign = TextAlign.Center,
+            fontFamily = FontFamily.SansSerif,
+            fontWeight = FontWeight.SemiBold
          )
 
          LazyVerticalGrid(
@@ -210,62 +240,6 @@ fun GalaxyScreen(
 }
 
 @Composable
-fun ExpandableSectionTitle(
-   modifier: Modifier = Modifier,
-   isExpanded: Boolean,
-   title: String
-) {
-   val icon = if (isExpanded) Icons.Rounded.KeyboardArrowUp else Icons.Rounded.KeyboardArrowDown
-   val contentDescription = if (isExpanded) "Collapse section" else "Expand section"
-
-   Row(
-      modifier = modifier
-         .fillMaxWidth()
-         .padding(8.dp),
-      verticalAlignment = Alignment.CenterVertically
-   ) {
-      Image(
-         modifier = Modifier.size(32.dp),
-         imageVector = icon,
-         colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimaryContainer),
-         contentDescription = contentDescription
-      )
-      Text(
-         text = title,
-         style = MaterialTheme.typography.headlineMedium,
-         modifier = Modifier.padding(start = 8.dp)
-      )
-   }
-}
-
-
-@Composable
-fun ExpandableSection(
-   modifier: Modifier = Modifier,
-   title: String,
-   content: @Composable () -> Unit
-) {
-   var isExpanded by rememberSaveable { mutableStateOf(false) }
-   Column(
-      modifier = modifier
-         .clickable { isExpanded = !isExpanded }
-         .background(color = MaterialTheme.colorScheme.primaryContainer)
-         .fillMaxWidth()
-   ) {
-      ExpandableSectionTitle(isExpanded = isExpanded, title = title)
-
-      AnimatedVisibility(
-         modifier = Modifier
-            .background(MaterialTheme.colorScheme.secondaryContainer)
-            .fillMaxWidth(),
-         visible = isExpanded
-      ) {
-         content()
-      }
-   }
-}
-
-@Composable
 fun WorldScreen(
    worldId: Int,
    onStoryClick: (Int) -> Unit,
@@ -280,19 +254,14 @@ fun WorldScreen(
 
    Scaffold(
       topBar = {
-         PetAppBar(
+         UntitledAppBar(
             onUpClick = onUpClick,
             title = world.worldname,
             canNavigateBack = true,
          )
       },
-
       floatingActionButton = {
-         ExtendedFloatingActionButton(
-            onClick = { onStoryButtonClick() },
-            icon = { Icon(Icons.Filled.Add, "Story") },
-            text = { Text(text = "Story") },
-         )
+         BottomButton("Story", onStoryButtonClick)
       }
    ) { innerPadding ->
       Column(
@@ -300,22 +269,29 @@ fun WorldScreen(
       ) {
          LazyColumn {
             items(storyList) { story ->
-               ExpandableSection(modifier = modifier, title = story.storyname) {
-                  Column {
-                     Text(
-                        modifier = Modifier.padding(8.dp),
-                        text = story.synopsis,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
-                     )
-                     Text(
-                        modifier = Modifier
-                           .clickable { onStoryClick(story.storyid) }
-                           .padding(8.dp),
-                        text = "View Chapters",
-                        color = MaterialTheme.colorScheme.primary
-                     )
-                  }
+               Box(
+                  modifier = Modifier
+                     .fillMaxWidth()
+                     .padding(vertical = 5.dp),
+                  contentAlignment = Alignment.Center
+               ) {
+                  ExpandableSection(modifier = modifier, title = story.storyname) {
+                     Column {
+                        Text(
+                           modifier = Modifier.padding(8.dp),
+                           text = story.synopsis,
+                           color = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                        Text(
+                           modifier = Modifier
+                              .clickable { onStoryClick(story.storyid) }
+                              .padding(8.dp),
+                           text = "View Chapters",
+                           color = MaterialTheme.colorScheme.primary
+                        )
+                     }
 
+                  }
                }
             }
          }
@@ -338,7 +314,7 @@ fun StoryScreen(
 
    Scaffold(
       topBar = {
-         PetAppBar(
+         UntitledAppBar(
             onUpClick = onUpClick,
             canNavigateBack = true,
             title = story.storyname
@@ -346,22 +322,20 @@ fun StoryScreen(
       },
 
       floatingActionButton = {
-         ExtendedFloatingActionButton(
-            onClick = { onChapterButtonClick() },
-            icon = { Icon(Icons.Filled.Add, "Chapter") },
-            text = { Text(text = "Chapter") },
-         )
+         BottomButton("Chapter", onChapterButtonClick)
       }
    ) { innerPadding ->
       Column(
-         modifier = modifier.padding(innerPadding)
+         modifier = modifier
+            .padding(innerPadding),
       ) {
          // Synopsis
-         ExpandableSection(modifier = modifier, title = "Synopsis") {
+         ExpandableSection(modifier = modifier.align(Alignment.CenterHorizontally), title = "Synopsis"
+         ) {
             Text(
                modifier = Modifier.padding(8.dp),
                text = story.synopsis,
-               color = MaterialTheme.colorScheme.onSecondaryContainer
+               color = MaterialTheme.colorScheme.onSecondaryContainer,
             )
          }
          // Chapters
@@ -403,7 +377,7 @@ fun ChapterScreen(
 
    Scaffold(
       topBar = {
-         PetAppBar(
+         UntitledAppBar(
             canNavigateBack = true,
             onUpClick = onUpClick,
             title = chapter.chaptername
@@ -417,6 +391,68 @@ fun ChapterScreen(
       }
    }
 }
+
+
+@Composable
+fun ExpandableSectionTitle(
+   modifier: Modifier = Modifier,
+   isExpanded: Boolean,
+   title: String
+) {
+   val icon = if (isExpanded) Icons.Rounded.KeyboardArrowUp else Icons.Rounded.KeyboardArrowDown
+   val contentDescription = if (isExpanded) "Collapse section" else "Expand section"
+
+   Row(
+      modifier = modifier
+         .fillMaxWidth()
+         .clip(shape = RoundedCornerShape(50.dp))
+         .padding(8.dp),
+
+      verticalAlignment = Alignment.CenterVertically,
+
+   ) {
+      Image(
+         modifier = Modifier.size(32.dp),
+         imageVector = icon,
+//         colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimaryContainer),
+         contentDescription = contentDescription
+      )
+      Text(
+         text = title,
+         style = MaterialTheme.typography.headlineMedium,
+         modifier = Modifier.padding(start = 8.dp)
+      )
+   }
+}
+
+
+@Composable
+fun ExpandableSection(
+   modifier: Modifier = Modifier,
+   title: String,
+   content: @Composable () -> Unit
+) {
+   var isExpanded by rememberSaveable { mutableStateOf(false) }
+   Column(
+      modifier = modifier
+         .clickable { isExpanded = !isExpanded }
+         .background(color = MaterialTheme.colorScheme.primaryContainer)
+         .fillMaxWidth(0.9f)
+   ) {
+      ExpandableSectionTitle(isExpanded = isExpanded, title = title)
+
+      AnimatedVisibility(
+         modifier = Modifier
+            .background(MaterialTheme.colorScheme.secondaryContainer)
+            .fillMaxWidth(),
+         visible = isExpanded
+      ) {
+         content()
+      }
+   }
+}
+
+
 
 //@Composable
 //fun ToDoScreen(
@@ -619,7 +655,7 @@ fun PreviewGalaxyScreen() {
 @Preview
 @Composable
 fun PreviewWorldScreen() {
-   val world = WorldDataSource().loadWorlds()[0]
+   val world = WorldDataSource().loadWorlds()[1]
    ToDoListTheme {
       WorldScreen(
          worldId = world.worldid,
