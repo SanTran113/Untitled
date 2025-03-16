@@ -13,11 +13,11 @@ interface ChapterDao {
     fun getAllChaptersFromStoryId(storyId: Long): Flow<Chapter?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun addChapter(subject: Chapter): Long
+    fun addChapter(chap: Chapter): Long
 
     @Update
-    fun updateChapter(subject: Chapter)
+    fun updateChapter(chap: Chapter)
 
     @Delete
-    fun deleteChapter(subject: Chapter)
+    fun deleteChapter(chap: Chapter)
 }

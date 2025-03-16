@@ -1,0 +1,114 @@
+package com.zybooks.untitled.data
+
+import android.content.Context
+import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.sqlite.db.SupportSQLiteDatabase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+
+class UntitledRepository (context: Context) {
+    private val databaseCallback = object : RoomDatabase.Callback() {
+        override fun onCreate(db: SupportSQLiteDatabase) {
+            super.onCreate(db)
+
+//            CoroutineScope(Dispatchers.IO).launch {
+//                addStarterData()
+//            }
+        }
+    }
+
+    private val database: UntitledDatabase = Room.databaseBuilder(
+        context,
+        UntitledDatabase::class.java,
+        "untitled.db"
+    )
+        .addCallback(databaseCallback)
+        .build()
+
+    private val galaxyDao = database.galaxyDao()
+    private val worldDao = database.worldDao()
+    private val storyDao = database.storyDao()
+    private val chapterDao = database.chapterDao()
+
+
+//  ------------------------------- GALAXY CALLS -------------------------------
+    fun getGalaxy(galaxy: Galaxy) = galaxyDao.updateGalaxy(galaxy)
+
+//  ------------------------------- WORLD CALLS -------------------------------
+    fun getWorld(id: Long) = worldDao.getWorld(id)
+
+    fun getAllWorlds() = worldDao.getAllWorlds()
+
+    fun addWorld(world: World) {
+        if (world.worldName.trim() != "") {
+            CoroutineScope(Dispatchers.IO).launch {
+                world.worldId = worldDao.addWorld(world)
+            }
+        }
+    }
+
+    fun updateWorld(world: World) {
+        CoroutineScope(Dispatchers.IO).launch {
+            worldDao.updateWorld(world)
+        }
+    }
+
+    fun deleteWorld(world: World) {
+        CoroutineScope(Dispatchers.IO).launch {
+            worldDao.deleteWorld(world)
+        }
+    }
+
+//  ------------------------------- STORY CALLS -------------------------------
+    fun getStory(id: Long) = storyDao.getStory(id)
+
+    fun getAllStoriesFromWorldId(worldid: Long) = storyDao.getAllStoriesFromWorldId(worldid)
+
+    fun addStory(story: Story) {
+        if (story.storyName.trim() != "") {
+            CoroutineScope(Dispatchers.IO).launch {
+                story.storyId = storyDao.addStory(story)
+            }
+        }
+    }
+
+    fun updateStory(story: Story) {
+        CoroutineScope(Dispatchers.IO).launch {
+            storyDao.updateStory(story)
+        }
+    }
+
+    fun deleteStory(story: Story) {
+        CoroutineScope(Dispatchers.IO).launch {
+            storyDao.deleteStory(story)
+        }
+    }
+
+//  ------------------------------- CHAPTER CALLS -------------------------------
+    fun getChapter(id: Long) = chapterDao.getChapter(id)
+
+    fun getAllChaptersFromStoryId(id: Long) = chapterDao.getAllChaptersFromStoryId(id)
+
+    fun addChapter(chapter: Chapter) {
+        if (chapter.chapterName.trim() != "") {
+            CoroutineScope(Dispatchers.IO).launch {
+                chapter.chapterId = chapterDao.addChapter(chapter)
+            }
+        }
+    }
+
+    fun updateChapter(chapter: Chapter) {
+        CoroutineScope(Dispatchers.IO).launch {
+            chapterDao.updateChapter(chapter)
+        }
+    }
+
+    fun deleteStory(chapter: Chapter) {
+        CoroutineScope(Dispatchers.IO).launch {
+            chapterDao.deleteChapter(chapter)
+        }
+    }
+
+}

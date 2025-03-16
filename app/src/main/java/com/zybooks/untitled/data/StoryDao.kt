@@ -13,12 +13,12 @@ interface StoryDao {
     fun getAllStoriesFromWorldId(worldId: Long): Flow<Story?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun addStory(subject: Story): Long
+    fun addStory(story: Story): Long
 
     @Update
-    fun updateStory(subject: Story)
+    fun updateStory(story: Story)
 
     @Delete
-    fun deleteStory(subject: Story)
+    fun deleteStory(story: Story)
 }
 

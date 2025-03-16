@@ -6,7 +6,7 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
 @Entity(foreignKeys = [
-    ForeignKey(entity = Galaxy::class,
+    ForeignKey(entity = World::class,
         parentColumns = ["worldId"],
         childColumns = ["world_id"],
         onDelete = ForeignKey.CASCADE

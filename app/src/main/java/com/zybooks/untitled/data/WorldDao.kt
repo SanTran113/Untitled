@@ -1,4 +1,4 @@
-package com.zybooks.studyhelper.data
+package com.zybooks.untitled.data
 
 import androidx.room.*
 import com.zybooks.untitled.data.World
@@ -13,12 +13,12 @@ interface WorldDao {
    fun getAllWorlds(): Flow<World?>
 
    @Insert(onConflict = OnConflictStrategy.REPLACE)
-   fun addWorld(subject: World): Long
+   fun addWorld(world: World): Long
 
    @Update
-   fun updateWorld(subject: World)
+   fun updateWorld(world: World)
 
    @Delete
-   fun deleteWorld(subject: World)
+   fun deleteWorld(world: World)
 }
 
