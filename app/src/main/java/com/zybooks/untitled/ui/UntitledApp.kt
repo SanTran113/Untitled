@@ -1,8 +1,6 @@
 package com.zybooks.untitled.ui
 
-import android.adservices.adid.AdId
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -10,8 +8,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -19,61 +15,46 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DismissValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
-import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.zybooks.untitled.Task
-import com.zybooks.untitled.data.World
 import com.zybooks.untitled.ui.theme.ToDoListTheme
 import kotlinx.serialization.Serializable
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.toRoute
-import com.zybooks.untitled.data.ChapterDataSource
 import com.zybooks.untitled.data.Galaxy
-import com.zybooks.untitled.data.Story
 import com.zybooks.untitled.data.StoryDataSource
 import com.zybooks.untitled.data.WorldDataSource
 
@@ -111,7 +92,8 @@ fun UntitledApp() {
                navController.navigate(
                   Routes.World(world.galaxyid)
                )
-            }
+            },
+            onWorldButtonClick = { }
          )
       }
       composable<Routes.World> { backstackEntry ->
@@ -126,7 +108,8 @@ fun UntitledApp() {
             },
             onUpClick = {
                navController.navigateUp()
-            }
+            },
+            onStoryButtonClick = {}
          )
       }
       composable<Routes.Story> { backstackEntry ->
@@ -141,14 +124,14 @@ fun UntitledApp() {
             },
             onUpClick = {
                navController.navigateUp()
-            }
+            },
+            onChapterButtonClick = { }
          )
       }
 
       composable<Routes.Chapter> { backstackEntry ->
          val chapter: Routes.Chapter = backstackEntry.toRoute()
 
-         // Add your ChapterScreen composable here
          ChapterScreen(
             chapterId = chapter.chapterId,
             onUpClick = {
@@ -168,7 +151,7 @@ fun PetAppBar(
    canNavigateBack: Boolean = false,
    onUpClick: () -> Unit = { },
 ) {
-   TopAppBar(
+   CenterAlignedTopAppBar (
       title = { Text(title) },
       colors = TopAppBarDefaults.topAppBarColors(
          containerColor = MaterialTheme.colorScheme.primaryContainer
@@ -188,10 +171,17 @@ fun PetAppBar(
 fun GalaxyScreen(
    onImageClick: (Galaxy) -> Unit,
    modifier: Modifier = Modifier,
-   viewModel: GalaxyViewModel = viewModel()
+   viewModel: GalaxyViewModel = viewModel(),
+   onWorldButtonClick: () -> Unit
 ) {
    Scaffold(
-// will contain the bottom app bar
+      floatingActionButton = {
+         ExtendedFloatingActionButton(
+            onClick = { onWorldButtonClick() },
+            icon = { Icon(Icons.Filled.Add, "World") },
+            text = { Text(text = "World") },
+         )
+      }
    ) { innerPadding ->
       Column {
          Text(
@@ -281,6 +271,7 @@ fun WorldScreen(
    onStoryClick: (Int) -> Unit,
    modifier: Modifier = Modifier,
    viewModel: WorldViewModel = viewModel(),
+   onStoryButtonClick: () -> Unit,
    onUpClick: () -> Unit = { }
 ) {
    val world = viewModel.getWorld(worldId)
@@ -293,6 +284,14 @@ fun WorldScreen(
             onUpClick = onUpClick,
             title = world.worldname,
             canNavigateBack = true,
+         )
+      },
+
+      floatingActionButton = {
+         ExtendedFloatingActionButton(
+            onClick = { onStoryButtonClick() },
+            icon = { Icon(Icons.Filled.Add, "Story") },
+            text = { Text(text = "Story") },
          )
       }
    ) { innerPadding ->
@@ -330,6 +329,7 @@ fun StoryScreen(
    onChapterClick: (Int) -> Unit,
    modifier: Modifier = Modifier,
    viewModel: StoryViewModel = viewModel(),
+   onChapterButtonClick: () -> Unit = { },
    onUpClick: () -> Unit = { }
 ) {
    val story = viewModel.getStory(storyId)
@@ -342,6 +342,14 @@ fun StoryScreen(
             onUpClick = onUpClick,
             canNavigateBack = true,
             title = story.storyname
+         )
+      },
+
+      floatingActionButton = {
+         ExtendedFloatingActionButton(
+            onClick = { onChapterButtonClick() },
+            icon = { Icon(Icons.Filled.Add, "Chapter") },
+            text = { Text(text = "Chapter") },
          )
       }
    ) { innerPadding ->
@@ -602,7 +610,8 @@ fun ToDoAppTopBar(
 fun PreviewGalaxyScreen() {
    ToDoListTheme {
       GalaxyScreen(
-         onImageClick = {}
+         onImageClick = {},
+         onWorldButtonClick = {},
       )
    }
 }
@@ -614,7 +623,8 @@ fun PreviewWorldScreen() {
    ToDoListTheme {
       WorldScreen(
          worldId = world.worldid,
-         onStoryClick = {}
+         onStoryClick = {},
+         onStoryButtonClick = {}
       )
    }
 }
@@ -626,7 +636,8 @@ fun PreviewStoryScreen() {
    ToDoListTheme {
       StoryScreen(
          storyId = story.storyid,
-         onChapterClick = {}
+         onChapterClick = {},
+         onChapterButtonClick = {}
       )
    }
 }
