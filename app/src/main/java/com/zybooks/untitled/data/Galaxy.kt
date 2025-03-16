@@ -1,7 +1,14 @@
 package com.zybooks.untitled.data
 
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity
 data class Galaxy (
-    val galaxyid: Int = 0,
-    val galaxyname: String = "",
-    val imageId: Int = 0
+    @PrimaryKey(autoGenerate = true)
+    var galaxyId: Long = 0,
+
+    var galaxyName: String = "",
+    var imageId: Long = 0
 )

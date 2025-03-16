@@ -2,12 +2,10 @@ package com.zybooks.untitled.ui
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
-import com.zybooks.untitled.data.Chapter
-import com.zybooks.untitled.data.ChapterDataSource
-import com.zybooks.untitled.data.Story
-import com.zybooks.untitled.data.StoryDataSource
-import com.zybooks.untitled.data.World
-import com.zybooks.untitled.data.WorldDataSource
+import com.zybooks.untitled.data_backup.Chapter
+import com.zybooks.untitled.data_backup.ChapterDataSource
+import com.zybooks.untitled.data_backup.Story
+import com.zybooks.untitled.data_backup.StoryDataSource
 
 class StoryViewModel : ViewModel() {
     val chapterDataSource = ChapterDataSource()

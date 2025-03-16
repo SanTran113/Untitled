@@ -1,7 +1,15 @@
 package com.zybooks.untitled.data
 
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.PrimaryKey
+
+@Entity
 data class World (
-    val galaxyid: Int = 0,
-    val worldid: Int = 0,
-    val worldname: String = ""
+    @PrimaryKey(autoGenerate = true)
+    var worldId: Long = 0,
+
+    var worldName: String = "",
+
 )

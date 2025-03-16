@@ -3,8 +3,8 @@ package com.zybooks.untitled.ui
 import GalaxyDataSource
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
-import com.zybooks.untitled.data.World
-import com.zybooks.untitled.data.WorldDataSource
+import com.zybooks.untitled.data_backup.World
+import com.zybooks.untitled.data_backup.WorldDataSource
 
 class GalaxyViewModel : ViewModel() {
     val galaxyDataSource = GalaxyDataSource().loadGalaxy()
