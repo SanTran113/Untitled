@@ -69,6 +69,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.toRoute
 import com.zybooks.untitled.data.ChapterDataSource
 import com.zybooks.untitled.data.Galaxy
@@ -190,26 +191,29 @@ fun GalaxyScreen(
    viewModel: GalaxyViewModel = viewModel()
 ) {
    Scaffold(
-      topBar = {
-         PetAppBar(
-            title = "Galaxy"
-         )
-      }
+// will contain the bottom app bar
    ) { innerPadding ->
-      LazyVerticalGrid(
-         columns = GridCells.Adaptive(minSize = 128.dp),
-         contentPadding = PaddingValues(0.dp),
-         modifier = modifier.padding(innerPadding)
-      ) {
-         items(viewModel.galaxyDataSource) { galaxy ->
-            Image(
-               painter = painterResource(id = galaxy.imageId),
-               contentDescription = "Part of ${galaxy.galaxyname}",
-               modifier = Modifier.clickable(
-                  onClick = { onImageClick(galaxy) },
-                  onClickLabel = "Select the world"
+      Column {
+         Text(
+            modifier = Modifier.padding(8.dp),
+            text = "Welcome to Your Galaxy",
+         )
+
+         LazyVerticalGrid(
+            columns = GridCells.Adaptive(minSize = 128.dp),
+            contentPadding = PaddingValues(0.dp),
+            modifier = modifier.padding(innerPadding)
+         ) {
+            items(viewModel.galaxyDataSource) { galaxy ->
+               Image(
+                  painter = painterResource(id = galaxy.imageId),
+                  contentDescription = "Part of ${galaxy.galaxyname}",
+                  modifier = Modifier.clickable(
+                     onClick = { onImageClick(galaxy) },
+                     onClickLabel = "Select the world"
+                  )
                )
-            )
+            }
          }
       }
    }
