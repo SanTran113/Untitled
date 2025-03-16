@@ -9,9 +9,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -51,10 +53,12 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
@@ -327,41 +331,73 @@ fun StoryScreen(
    ) { innerPadding ->
       Column(
          modifier = modifier
-            .padding(innerPadding),
+            .padding(innerPadding)
+         ,
+         horizontalAlignment = Alignment.CenterHorizontally
       ) {
          // Synopsis
-         ExpandableSection(modifier = modifier.align(Alignment.CenterHorizontally), title = "Synopsis"
+         ExpandableSection(modifier = modifier, title = "SYNOPSIS"
          ) {
             Text(
                modifier = Modifier.padding(8.dp),
                text = story.synopsis,
                color = MaterialTheme.colorScheme.onSecondaryContainer,
+               fontWeight = FontWeight.SemiBold
             )
          }
          // Chapters
-         Text(
-            text = "Chapters",
-            style = MaterialTheme.typography.headlineMedium
-         )
-         LazyColumn {
-            items(chapterList) { chapter ->
-               Row (modifier = Modifier
-                  .fillMaxWidth()
-                  .clickable { onChapterClick(chapter.chapterid)},
-                     horizontalArrangement = Arrangement.SpaceBetween
-               ) {
-                  Text(chapter.chaptername)
-                  Text((chapter.wordcount).toString())
+         Box {
+            Column (
+               modifier = Modifier
+                  .padding(20.dp)
+            ){
+               Text(
+                  text = "CHAPTERS",
+                  style = MaterialTheme.typography.headlineSmall,
+                  fontWeight = FontWeight.Medium
+               )
+
+               Divider(
+                  color = Color.Black,
+                  modifier = Modifier
+                     .fillMaxWidth().width(1.dp)
+                     .padding(vertical = 3.dp)
+               )
+
+               LazyColumn (
+                  contentPadding = PaddingValues(vertical = 10.dp),
+                  verticalArrangement = Arrangement.spacedBy(8.dp)
+               ){
+                  items(chapterList) { chapter ->
+                     Row(
+                        modifier = Modifier
+                           .fillMaxWidth()
+                           .clickable { onChapterClick(chapter.chapterid) },
+                        horizontalArrangement = Arrangement.SpaceBetween
+                     ) {
+                        Text(
+                           text = chapter.chaptername,
+                           style = MaterialTheme.typography.bodyLarge
+                        )
+                        Text(
+                           text = (chapter.wordcount).toString(),
+                           style = MaterialTheme.typography.bodyLarge
+                        )
+                     }
+                  }
                }
             }
          }
-
          // Scratch Pad
-         Text(
-            text = "Scratch Pad",
-            style = MaterialTheme.typography.headlineMedium
-         )
-
+         Box {
+            Column {
+               Text(
+                  text = "SCRATCH PAD",
+                  fontWeight = FontWeight.Medium,
+                  style = MaterialTheme.typography.headlineSmall
+               )
+            }
+         }
       }
    }
 }
@@ -406,7 +442,7 @@ fun ExpandableSectionTitle(
       modifier = modifier
          .fillMaxWidth()
          .clip(shape = RoundedCornerShape(50.dp))
-         .padding(8.dp),
+         .padding(15.dp),
 
       verticalAlignment = Alignment.CenterVertically,
 
@@ -419,8 +455,9 @@ fun ExpandableSectionTitle(
       )
       Text(
          text = title,
-         style = MaterialTheme.typography.headlineMedium,
-         modifier = Modifier.padding(start = 8.dp)
+         style = MaterialTheme.typography.headlineSmall,
+         modifier = Modifier.padding(start = 8.dp),
+         fontWeight = FontWeight.Medium
       )
    }
 }
