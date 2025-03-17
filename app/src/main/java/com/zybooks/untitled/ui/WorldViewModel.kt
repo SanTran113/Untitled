@@ -1,90 +1,32 @@
 package com.zybooks.untitled.ui
 
+import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
-import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
-import com.zybooks.untitled.UntitledApplication
-import com.zybooks.untitled.data.UntitledRepository
-import com.zybooks.untitled.data.World
-import com.zybooks.untitled.ui.galaxy.GalaxyViewModel
-import com.zybooks.untitled.ui.galaxy.WorldScreenUiState
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
+import com.zybooks.untitled.ui.data_backup.Story
+import com.zybooks.untitled.ui.data_backup.StoryDataSource
+import com.zybooks.untitled.ui.data_backup.World
+import com.zybooks.untitled.ui.data_backup.WorldDataSource
 
-class WorldViewModel(
-    private val untitledRepository: UntitledRepository
-): ViewModel() {
+class WorldViewModel : ViewModel() {
+    private val storyDataSource = StoryDataSource()
+    private val worldDataSource = WorldDataSource()
 
-    companion object {
-        val Factory: ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                val application = (this[APPLICATION_KEY] as UntitledApplication)
-                GalaxyViewModel(application.untitledRepository)
-            }
-        }
+    var storyList = mutableStateListOf<Story>()
+        private set
+
+
+    fun getWorld(id: Int): World = worldDataSource.getWorld(id) ?: World()
+
+    fun loadStories(worldId: Int) {
+        storyList.clear()
+        storyList.addAll(storyDataSource.getStoryListFromWorld(worldId))
     }
 
-    private val selectedWorlds = MutableStateFlow(emptySet<World>())
-    private val isWorldDialogVisible = MutableStateFlow(false)
-
-    val uiState: StateFlow<WorldScreenUiState> = transformedFlow()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000L),
-            initialValue = WorldScreenUiState(),
-        )
-
-    private fun transformedFlow() = combine(
-        untitledRepository.getAllWorlds(),
-        selectedWorlds,
-        isWorldDialogVisible
-    ) { worlds, selectWorlds, dialogVisible ->
-        WorldScreenUiState(
-            worldList = worlds,
-            selectedWorlds = selectWorlds,
-            isWorldDialogVisible = dialogVisible
-        )
+    fun addStory(story: Story) {
+        storyList.add(story)
     }
 
-    fun addWorld(title: String) {
-        untitledRepository.addWorld(World(worldName = title))
-    }
-
-    fun selectWorld(world: World) {
-        selectedWorlds.value = selectedWorlds.value.toMutableSet().apply {
-            if (contains(world)) remove(world) else add(world)
-        }
-    }
-
-    fun hideCab() {
-        selectedWorlds.value = emptySet()
-    }
-
-    fun deleteSelectedWorld() {
-        for (world in selectedWorlds.value) {
-            untitledRepository.deleteWorld(world)
-        }
-        hideCab()
-    }
-
-    fun showWorldDialog() {
-        isWorldDialogVisible.value = true
-    }
-
-    fun hideWorldDialog() {
-        isWorldDialogVisible.value = false
+    fun removeStory(story: Story) {
+        storyList.remove(story)
     }
 }
-
-data class WorldScreenUiState(
-    val worldList: List<World> = emptyList(),
-    val selectedWorlds: Set<World> = emptySet(),
-    val isCabVisible: Boolean = selectedWorlds.isNotEmpty(),
-    val isWorldDialogVisible: Boolean = false
-)
