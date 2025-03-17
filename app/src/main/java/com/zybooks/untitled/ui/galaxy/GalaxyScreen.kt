@@ -1,17 +1,27 @@
 package com.zybooks.untitled.ui.galaxy
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -21,7 +31,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -36,19 +50,15 @@ import com.zybooks.untitled.ui.world.WorldViewModel
 
 @Composable
 fun GalaxyScreen(
-    onImageClick: (World) -> Unit,
+    onWorldClick: (World) -> Unit,
     modifier: Modifier = Modifier,
     galaxyViewModel: GalaxyViewModel = viewModel(
         factory = GalaxyViewModel.Factory
-    ),
-    worldViewModel: WorldViewModel = viewModel(
-        factory = WorldViewModel.Factory
-    ),
-    onWorldButtonClick: (World) -> Unit = {}
+    )
 ) {
     val uiState = galaxyViewModel.uiState.collectAsStateWithLifecycle()
 
-    if (uiState.value.isSubjectDialogVisible) {
+    if (uiState.value.isWorldDialogVisible) {
         AddWorldDialog(
             onConfirmation = { worldName ->
                 galaxyViewModel.hideWorldDialog()
@@ -62,7 +72,7 @@ fun GalaxyScreen(
 
     Scaffold(
         floatingActionButton = {
-            BottomButton("World", onWorldButtonClick)
+            BottomButton("World", onClick = { galaxyViewModel.showWorldDialog() })
         }
     ) { innerPadding ->
         Column {
@@ -77,19 +87,78 @@ fun GalaxyScreen(
                 fontWeight = FontWeight.SemiBold
             )
 
-            LazyVerticalGrid(
-                columns = GridCells.Adaptive(minSize = 128.dp),
-                contentPadding = PaddingValues(0.dp),
-                modifier = modifier.padding(innerPadding)
+            GalaxyGrid(
+                worldList = uiState.value.worldList,
+                onWorldClick = onWorldClick,
+                modifier = modifier.padding(innerPadding),
+                onSelectWorld = { galaxyViewModel.selectWorld(it)},
+                inSelectionMode = uiState.value.isCabVisible,
+                selectedWorld = uiState.value.selectedWorlds
+
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun GalaxyGrid(
+    worldList: List<World>,
+    onWorldClick: (World) -> Unit,
+    modifier: Modifier = Modifier,
+    onSelectWorld: (World) -> Unit = { },
+    inSelectionMode: Boolean = false,
+    selectedWorld: Set<World> = emptySet()
+){
+    val haptics = LocalHapticFeedback.current
+
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(minSize = 128.dp),
+        contentPadding = PaddingValues(0.dp),
+        modifier = modifier
+    ) {
+        items(worldList, key = { it.worldId }) { world ->
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.Black
+                ),
+                modifier = Modifier
+                    .animateItem()
+                    .height(100.dp)
+                    .padding(4.dp)
+                    .combinedClickable(
+                        onLongClick = {
+                            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                            onSelectWorld(world)
+                        },
+                        onClick = {
+                            if (inSelectionMode) {
+                                onSelectWorld(world)
+                            } else {
+                                onWorldClick(world)
+                            }
+                        },
+                        onClickLabel = world.worldName,
+                        onLongClickLabel = "Select for deleting"
+                    )
             ) {
-                items(viewModel.galaxyDataSource) { galaxy ->
-                    Image(
-                        painter = painterResource(id = galaxy.imageId),
-                        contentDescription = "Part of ${galaxy.galaxyname}",
-                        modifier = Modifier.clickable(
-                            onClick = { onImageClick(galaxy) },
-                            onClickLabel = "Select the world"
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    if (selectedWorld.contains(world)) {
+                        Icon(
+                            imageVector = Icons.Default.CheckCircle,
+                            contentDescription = "Check",
+                            tint = Color.White,
+                            modifier = Modifier
+                                .align(Alignment.TopStart)
+                                .padding(4.dp)
                         )
+                    }
+                    Text(
+                        text = world.worldName,
+                        color = Color.White
                     )
                 }
             }
