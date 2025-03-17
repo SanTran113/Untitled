@@ -1,8 +1,7 @@
 package com.zybooks.untitled.ui.galaxy
 
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,7 +35,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -44,9 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.zybooks.untitled.data.World
-import com.zybooks.untitled.ui.BottomButton
-import com.zybooks.untitled.ui.Routes
-import com.zybooks.untitled.ui.world.WorldViewModel
+//import com.zybooks.untitled.ui.BottomButton
 
 @Composable
 fun GalaxyScreen(
@@ -57,6 +53,8 @@ fun GalaxyScreen(
     )
 ) {
     val uiState = galaxyViewModel.uiState.collectAsStateWithLifecycle()
+
+    Log.d("GalaxyScreen", "World list: ${uiState.value.worldList}")
 
     if (uiState.value.isWorldDialogVisible) {
         AddWorldDialog(
@@ -72,7 +70,7 @@ fun GalaxyScreen(
 
     Scaffold(
         floatingActionButton = {
-            BottomButton("World", onClick = { galaxyViewModel.showWorldDialog() })
+//            BottomButton("World", onClick = { galaxyViewModel.showWorldDialog() })
         }
     ) { innerPadding ->
         Column {
@@ -109,7 +107,7 @@ fun GalaxyGrid(
     onSelectWorld: (World) -> Unit = { },
     inSelectionMode: Boolean = false,
     selectedWorld: Set<World> = emptySet()
-){
+) {
     val haptics = LocalHapticFeedback.current
 
     LazyVerticalGrid(
@@ -165,8 +163,6 @@ fun GalaxyGrid(
         }
     }
 }
-
-
 @Composable
 fun AddWorldDialog(
     onConfirmation: (String) -> Unit,

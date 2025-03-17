@@ -1,6 +1,5 @@
 package com.zybooks.untitled.ui.galaxy
 
-import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
@@ -16,9 +15,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 
-class GalaxyViewModel (
-    private val untitledRepository: UntitledRepository
-): ViewModel() {
+class GalaxyViewModel(private val untitledRepository: UntitledRepository) : ViewModel() {
 
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
@@ -51,13 +48,16 @@ class GalaxyViewModel (
         )
     }
 
-    fun addWorld(title: String) {
-        untitledRepository.addWorld(World(worldName = title))
+    fun addWorld(name: String) {
+        untitledRepository.addWorld(World(worldName = name))
     }
 
     fun selectWorld(world: World) {
-        selectedWorlds.value = selectedWorlds.value.toMutableSet().apply {
-            if (contains(world)) remove(world) else add(world)
+        val selected = selectedWorlds.value.contains(world)
+        selectedWorlds.value = if (selected) {
+            selectedWorlds.value.minus(world)
+        } else {
+            selectedWorlds.value.plus(world)
         }
     }
 

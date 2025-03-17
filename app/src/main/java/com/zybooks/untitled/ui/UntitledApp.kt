@@ -187,6 +187,105 @@ fun BottomButton(
 
 
 @Composable
+fun StoryScreen(
+   storyId: Int,
+   onChapterClick: (Int) -> Unit,
+   modifier: Modifier = Modifier,
+   viewModel: StoryViewModel = viewModel(),
+   onChapterButtonClick: () -> Unit = { },
+   onUpClick: () -> Unit = { }
+) {
+   val story = viewModel.getStory(storyId)
+   viewModel.loadChapters(storyId)
+   val chapterList = viewModel.chapterList
+
+   Scaffold(
+      topBar = {
+         UntitledAppBar(
+            onUpClick = onUpClick,
+            canNavigateBack = true,
+            title = story.storyname
+         )
+      },
+
+      floatingActionButton = {
+         BottomButton("Chapter", onChapterButtonClick)
+      }
+   ) { innerPadding ->
+      Column(
+         modifier = modifier
+            .padding(innerPadding)
+         ,
+         horizontalAlignment = Alignment.CenterHorizontally
+      ) {
+         // Synopsis
+         ExpandableSection(modifier = modifier, title = "SYNOPSIS"
+         ) {
+            Text(
+               modifier = Modifier.padding(8.dp),
+               text = story.synopsis,
+               color = MaterialTheme.colorScheme.onSecondaryContainer,
+               fontWeight = FontWeight.SemiBold
+            )
+         }
+         // Chapters
+         Box {
+            Column (
+               modifier = Modifier
+                  .padding(20.dp)
+            ){
+               Text(
+                  text = "CHAPTERS",
+                  style = MaterialTheme.typography.headlineSmall,
+                  fontWeight = FontWeight.Medium
+               )
+
+               Divider(
+                  color = Color.Black,
+                  modifier = Modifier
+                     .fillMaxWidth().width(1.dp)
+                     .padding(vertical = 3.dp)
+               )
+
+               LazyColumn (
+                  contentPadding = PaddingValues(vertical = 10.dp),
+                  verticalArrangement = Arrangement.spacedBy(8.dp)
+               ){
+                  items(chapterList) { chapter ->
+                     Row(
+                        modifier = Modifier
+                           .fillMaxWidth()
+                           .clickable { onChapterClick(chapter.chapterid) },
+                        horizontalArrangement = Arrangement.SpaceBetween
+                     ) {
+                        Text(
+                           text = chapter.chaptername,
+                           style = MaterialTheme.typography.bodyLarge
+                        )
+                        Text(
+                           text = (chapter.wordcount).toString(),
+                           style = MaterialTheme.typography.bodyLarge
+                        )
+                     }
+                  }
+               }
+            }
+         }
+         // Scratch Pad
+         Box {
+            Column {
+               Text(
+                  text = "SCRATCH PAD",
+                  fontWeight = FontWeight.Medium,
+                  style = MaterialTheme.typography.headlineSmall
+               )
+            }
+         }
+      }
+   }
+}
+
+@Composable
 fun ChapterScreen(
    chapterId: Int,
    modifier: Modifier = Modifier,
