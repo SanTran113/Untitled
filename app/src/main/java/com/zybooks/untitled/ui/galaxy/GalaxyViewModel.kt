@@ -53,12 +53,7 @@ class GalaxyViewModel(private val untitledRepository: UntitledRepository) : View
     }
 
     fun selectWorld(world: World) {
-        val selected = selectedWorlds.value.contains(world)
-        selectedWorlds.value = if (selected) {
-            selectedWorlds.value.minus(world)
-        } else {
-            selectedWorlds.value.plus(world)
-        }
+        selectedWorlds.value.contains(world)
     }
 
     fun hideCab() {

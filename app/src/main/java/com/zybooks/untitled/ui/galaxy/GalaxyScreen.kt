@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
@@ -84,15 +85,13 @@ fun GalaxyScreen(
                 fontFamily = FontFamily.SansSerif,
                 fontWeight = FontWeight.SemiBold
             )
-
             GalaxyGrid(
                 worldList = uiState.value.worldList,
-                onWorldClick = onWorldClick,
-                modifier = modifier.padding(innerPadding),
-                onSelectWorld = { galaxyViewModel.selectWorld(it)},
                 inSelectionMode = uiState.value.isCabVisible,
-                selectedWorld = uiState.value.selectedWorlds
-
+                selectedWorlds = uiState.value.selectedWorlds,
+                onWorldClick = onWorldClick,
+                onSelectWorld = { galaxyViewModel.selectWorld(it) },
+                modifier = modifier.padding(innerPadding)
             )
         }
     }
@@ -106,7 +105,7 @@ fun GalaxyGrid(
     modifier: Modifier = Modifier,
     onSelectWorld: (World) -> Unit = { },
     inSelectionMode: Boolean = false,
-    selectedWorld: Set<World> = emptySet()
+    selectedWorlds: Set<World> = emptySet()
 ) {
     val haptics = LocalHapticFeedback.current
 
@@ -118,7 +117,8 @@ fun GalaxyGrid(
         items(worldList, key = { it.worldId }) { world ->
             Card(
                 colors = CardDefaults.cardColors(
-                    containerColor = Color.Black
+//                    containerColor = subjectColors[
+//                        world.title.length % subjectColors.size]
                 ),
                 modifier = Modifier
                     .animateItem()
@@ -144,7 +144,7 @@ fun GalaxyGrid(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    if (selectedWorld.contains(world)) {
+                    if (selectedWorlds.contains(world)) {
                         Icon(
                             imageVector = Icons.Default.CheckCircle,
                             contentDescription = "Check",
@@ -163,6 +163,7 @@ fun GalaxyGrid(
         }
     }
 }
+
 @Composable
 fun AddWorldDialog(
     onConfirmation: (String) -> Unit,
