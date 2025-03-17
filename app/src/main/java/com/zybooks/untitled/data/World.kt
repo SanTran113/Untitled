@@ -11,5 +11,5 @@ data class World (
     var worldId: Long = 0,
 
     var worldName: String = "",
-
+    var imageId: Long = 0
 )

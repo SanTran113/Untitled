@@ -10,7 +10,7 @@ interface WorldDao {
    fun getWorld(worldId: Long): Flow<World?>
 
    @Query("SELECT * FROM World")
-   fun getAllWorlds(): Flow<World?>
+   fun getAllWorlds(): Flow<List<World>>
 
    @Insert(onConflict = OnConflictStrategy.REPLACE)
    fun addWorld(world: World): Long

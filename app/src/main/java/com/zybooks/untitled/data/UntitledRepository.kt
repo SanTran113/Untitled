@@ -13,9 +13,9 @@ class UntitledRepository (context: Context) {
         override fun onCreate(db: SupportSQLiteDatabase) {
             super.onCreate(db)
 
-//            CoroutineScope(Dispatchers.IO).launch {
-//                addStarterData()
-//            }
+            CoroutineScope(Dispatchers.IO).launch {
+                addStarterData()
+            }
         }
     }
 
@@ -109,6 +109,63 @@ class UntitledRepository (context: Context) {
         CoroutineScope(Dispatchers.IO).launch {
             chapterDao.deleteChapter(chapter)
         }
+    }
+
+//  ------------------------------- STARTER DATA -------------------------------
+
+    private fun addStarterData() {
+        var galaxyId = galaxyDao.addGalaxy(Galaxy(galaxyName = "HSR"))
+        worldDao.addWorld(World(worldName = "Herta Space Station", imageId = 0))
+        worldDao.addWorld(World(worldName = "Amphoreus", imageId = 1))
+        worldDao.addWorld(World(worldName = "Penacony", imageId = 2))
+        worldDao.addWorld(World(worldName = "Xian Zhuo"))
+        storyDao.addStory(
+            Story(
+                storyName = "Tribbie",
+                synopsis = "This is the story of the Tribos",
+                scratchPad = "",
+                worldId = 1
+            )
+        )
+        storyDao.addStory(
+            Story(
+                storyName = "Aglaea",
+                synopsis = "This is the story of Aglaea",
+                scratchPad = "",
+                worldId = 1
+            )
+        )
+        storyDao.addStory(
+            Story(
+                storyName = "Phainon",
+                synopsis = "This is the story of Mydei",
+                scratchPad = "",
+                worldId = 1
+            )
+        )
+        storyDao.addStory(
+            Story(
+                storyName = "Sunday",
+                synopsis = "This is the story of Sunday",
+                scratchPad = "",
+                worldId = 2
+            )
+        )
+        chapterDao.addChapter(
+            Chapter(
+                chapterName = "Guiding Light",
+                chapterBody = "One..Two..Three..Children?",
+                storyId = 0
+            )
+        )
+        chapterDao.addChapter(
+            Chapter(
+                chapterName = "Laughter and Lament",
+                chapterBody = "Not only do the three children share each other's senses, " +
+                        "their souls are also interconnected",
+                storyId = 0
+            )
+        )
     }
 
 }

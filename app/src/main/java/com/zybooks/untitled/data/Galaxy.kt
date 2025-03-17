@@ -10,5 +10,4 @@ data class Galaxy (
     var galaxyId: Long = 0,
 
     var galaxyName: String = "",
-    var imageId: Long = 0
 )

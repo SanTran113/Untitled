@@ -1,4 +1,4 @@
-package com.zybooks.untitled.ui
+package com.zybooks.untitled.ui.story
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
