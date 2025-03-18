@@ -29,11 +29,11 @@ class GalaxyViewModel(private val untitledRepository: UntitledRepository) : View
     private val selectedWorlds = MutableStateFlow(emptySet<World>())
     private val isWorldDialogVisible = MutableStateFlow(false)
 
-    val uiState: StateFlow<WorldScreenUiState> = transformedFlow()
+    val uiState: StateFlow<GalaxyScreenUiState> = transformedFlow()
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000L),
-            initialValue = WorldScreenUiState(),
+            initialValue = GalaxyScreenUiState(),
         )
 
     private fun transformedFlow() = combine(
@@ -41,7 +41,7 @@ class GalaxyViewModel(private val untitledRepository: UntitledRepository) : View
         selectedWorlds,
         isWorldDialogVisible
     ) { worlds, selectWorlds, dialogVisible ->
-        WorldScreenUiState(
+        GalaxyScreenUiState(
             worldList = worlds,
             selectedWorlds = selectWorlds,
             isWorldDialogVisible = dialogVisible
@@ -71,12 +71,12 @@ class GalaxyViewModel(private val untitledRepository: UntitledRepository) : View
         isWorldDialogVisible.value = true
     }
 
-    fun hideWorldDialog() {
+    fun hideStoryDialog() {
         isWorldDialogVisible.value = false
     }
 }
 
-data class WorldScreenUiState(
+data class GalaxyScreenUiState(
     val worldList: List<World> = emptyList(),
     val selectedWorlds: Set<World> = emptySet(),
     val isCabVisible: Boolean = selectedWorlds.isNotEmpty(),
