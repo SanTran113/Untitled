@@ -13,8 +13,10 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -23,6 +25,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -42,6 +45,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.zybooks.untitled.data.World
+import com.zybooks.untitled.ui.components.AddDialog
+import com.zybooks.untitled.ui.components.CabAppBar
 import com.zybooks.untitled.ui.components.TopBar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -56,21 +61,22 @@ fun GalaxyScreen(
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
 
     if (uiState.value.isWorldDialogVisible) {
-        AddWorldDialog(
+        AddDialog(
             onConfirmation = { title ->
                 viewModel.hideStoryDialog()
                 viewModel.addWorld(title)
             },
             onDismissRequest = {
                 viewModel.hideStoryDialog()
-            }
+            },
+            text = "World Name?"
         )
     }
 
     Scaffold(
         topBar = {
             if (uiState.value.isCabVisible) {
-                TopBar(
+                CabAppBar(
                     onDeleteClick = { viewModel.deleteSelectedWorld() },
                     onUpClick = { viewModel.hideCab() }
                 )
@@ -168,52 +174,3 @@ fun GalaxyGrid(
     }
 }
 
-
-@Composable
-fun AddWorldDialog(
-    onConfirmation: (String) -> Unit,
-    onDismissRequest: () -> Unit,
-) {
-    var world by remember { mutableStateOf("") }
-
-    AlertDialog(
-        onDismissRequest = {
-            onDismissRequest()
-        },
-        title = {
-            TextField(
-                label = { Text("World Name?") },
-                value = world,
-                onValueChange = { world = it },
-                singleLine = true,
-                keyboardActions = KeyboardActions(
-                    onDone = {
-                        onConfirmation(world)
-                    }
-                )
-            )
-        },
-        confirmButton = {
-            Button(
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary
-                ),
-                onClick = {
-                    onConfirmation(world)
-                }) {
-                Text(text = "Add")
-            }
-        },
-        dismissButton = {
-            Button(
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.secondary
-                ),
-                onClick = {
-                    onDismissRequest()
-                }) {
-                Text(text = "Cancel")
-            }
-        },
-    )
-}

@@ -51,6 +51,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.zybooks.untitled.data.Story
+import com.zybooks.untitled.ui.components.AddDialog
+import com.zybooks.untitled.ui.components.ExpandableSection
+import com.zybooks.untitled.ui.components.TopBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,21 +68,22 @@ fun WorldScreen(
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
 
     if (uiState.value.isWorldDialogVisible) {
-        AddStoryDialog(
+        AddDialog(
             onConfirmation = { title ->
                 viewModel.hideStoryDialog()
                 viewModel.addStory(title)
             },
             onDismissRequest = {
                 viewModel.hideStoryDialog()
-            }
+            },
+            text = "Story Name?"
         )
     }
 
     Scaffold(
         topBar = {
-            WorldTopAppBar(
-                worldTitle = uiState.value.world.worldName,
+            TopBar(
+                title = uiState.value.world.worldName,
                 onUpClick = onUpClick
             )
         },
@@ -156,129 +160,3 @@ fun StoryDropDowns(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun WorldTopAppBar(
-    worldTitle: String,
-    onUpClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    TopAppBar(
-        title = { Text(worldTitle) },
-        modifier = modifier,
-        navigationIcon = {
-            IconButton(onClick = onUpClick) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack,"Back")
-            }
-        }
-    )
-}
-
-@Composable
-fun AddStoryDialog(
-    onConfirmation: (String) -> Unit,
-    onDismissRequest: () -> Unit,
-) {
-    var story by remember { mutableStateOf("") }
-
-    AlertDialog(
-        onDismissRequest = {
-            onDismissRequest()
-        },
-        title = {
-            TextField(
-                label = { Text("Story Name?") },
-                value = story,
-                onValueChange = { story = it },
-                singleLine = true,
-                keyboardActions = KeyboardActions(
-                    onDone = {
-                        onConfirmation(story)
-                    }
-                )
-            )
-        },
-        confirmButton = {
-            Button(
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary
-                ),
-                onClick = {
-                    onConfirmation(story)
-                }) {
-                Text(text = "Add")
-            }
-        },
-        dismissButton = {
-            Button(
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.secondary
-                ),
-                onClick = {
-                    onDismissRequest()
-                }) {
-                Text(text = "Cancel")
-            }
-        },
-    )
-}
-
-@Composable
-fun ExpandableSectionTitle(
-    modifier: Modifier = Modifier,
-    isExpanded: Boolean,
-    title: String
-) {
-    val icon = if (isExpanded) Icons.Rounded.KeyboardArrowUp else Icons.Rounded.KeyboardArrowDown
-    val contentDescription = if (isExpanded) "Collapse section" else "Expand section"
-
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(shape = RoundedCornerShape(50.dp))
-            .padding(15.dp),
-
-        verticalAlignment = Alignment.CenterVertically,
-
-        ) {
-        Image(
-            modifier = Modifier.size(32.dp),
-            imageVector = icon,
-//         colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimaryContainer),
-            contentDescription = contentDescription
-        )
-        Text(
-            text = title,
-            style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.padding(start = 8.dp),
-            fontWeight = FontWeight.Medium
-        )
-    }
-}
-
-
-@Composable
-fun ExpandableSection(
-    modifier: Modifier = Modifier,
-    title: String,
-    content: @Composable () -> Unit
-) {
-    var isExpanded by rememberSaveable { mutableStateOf(false) }
-    Column(
-        modifier = modifier
-            .clickable { isExpanded = !isExpanded }
-            .background(color = MaterialTheme.colorScheme.primaryContainer)
-            .fillMaxWidth(0.9f)
-    ) {
-        ExpandableSectionTitle(isExpanded = isExpanded, title = title)
-
-        AnimatedVisibility(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.secondaryContainer)
-                .fillMaxWidth(),
-            visible = isExpanded
-        ) {
-            content()
-        }
-    }
-}
