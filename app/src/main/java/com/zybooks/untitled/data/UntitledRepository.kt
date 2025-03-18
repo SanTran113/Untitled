@@ -6,6 +6,7 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -62,7 +63,7 @@ class UntitledRepository (context: Context) {
 //  ------------------------------- STORY CALLS -------------------------------
     fun getStory(id: Long) = storyDao.getStory(id)
 
-    fun getAllStoriesFromWorldId(worldid: Long) = storyDao.getAllStoriesFromWorldId(worldid)
+    fun getAllStoriesFromWorldId(worldid: Long): Flow<List<Story>> = storyDao.getAllStoriesFromWorldId(worldid)
 
     fun addStory(story: Story) {
         if (story.storyName.trim() != "") {
@@ -87,7 +88,7 @@ class UntitledRepository (context: Context) {
 //  ------------------------------- CHAPTER CALLS -------------------------------
     fun getChapter(id: Long) = chapterDao.getChapter(id)
 
-    fun getAllChaptersFromStoryId(id: Long) = chapterDao.getAllChaptersFromStoryId(id)
+    fun getAllChaptersFromStoryId(id: Long): Flow<List<Chapter>> = chapterDao.getAllChaptersFromStoryId(id)
 
     fun addChapter(chapter: Chapter) {
         if (chapter.chapterName.trim() != "") {
