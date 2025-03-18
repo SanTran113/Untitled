@@ -52,6 +52,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.zybooks.untitled.data.Story
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WorldScreen(
     modifier: Modifier = Modifier,
@@ -61,68 +62,223 @@ fun WorldScreen(
     onUpClick: () -> Unit = {},
     onStoryClick: (Story) -> Unit = {}
 ) {
+    val uiState = viewModel.uiState.collectAsStateWithLifecycle()
 
+    if (uiState.value.isWorldDialogVisible) {
+        AddStoryDialog(
+            onConfirmation = { title ->
+                viewModel.hideStoryDialog()
+                viewModel.addStory(title)
+            },
+            onDismissRequest = {
+                viewModel.hideStoryDialog()
+            }
+        )
+    }
+
+    Scaffold(
+        topBar = {
+            WorldTopAppBar(
+                worldTitle = uiState.value.world.worldName,
+                onUpClick = onUpClick
+            )
+        },
+        floatingActionButton = {
+            if (!uiState.value.isCabVisible) {
+                FloatingActionButton(
+                    onClick = { viewModel.showStoryDialog() },
+                ) {
+                    Icon(Icons.Filled.Add, "Add")
+                }
+            }
+        }
+    ) { innerPadding ->
+        StoryDropDowns(
+            storyList = uiState.value.storyList,
+            inSelectionMode = uiState.value.isCabVisible,
+            selectedStories = uiState.value.selectedStories,
+            onStoryClick = onStoryClick,
+            onSelectStory = { viewModel.selectStory(it)},
+            modifier = modifier.padding(innerPadding)
+        )
+
+    }
 }
 
-//@OptIn(ExperimentalMaterial3Api::class)
-//@Composable
-//fun WorldScreen(
-//    worldId: Int,
-//    onStoryClick: (Int) -> Unit,
-//    modifier: Modifier = Modifier,
-//    viewModel: WorldViewModel = viewModel(
-//        factory = WorldViewModel.Factory
-//    ),
-//    onStoryButtonClick: () -> Unit,
-//    onUpClick: () -> Unit = { }
-//) {
-//    val world = viewModel.getWorld(worldId)
-//    viewModel.loadStories(worldId)
-//    val storyList = viewModel.storyList
-//
-//    Scaffold(
-//        topBar = {
-//            UntitledAppBar(
-//                onUpClick = onUpClick,
-//                title = world.worldname,
-//                canNavigateBack = true,
-//            )
-//        },
-//        floatingActionButton = {
-//            BottomButton("Story", onStoryButtonClick)
-//        }
-//    ) { innerPadding ->
-//        Column(
-//            modifier = modifier.padding(innerPadding)
-//        ) {
-//            LazyColumn {
-//                items(storyList) { story ->
-//                    Box(
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .padding(vertical = 5.dp),
-//                        contentAlignment = Alignment.Center
-//                    ) {
-//                        ExpandableSection(modifier = modifier, title = story.storyname) {
-//                            Column {
-//                                Text(
-//                                    modifier = Modifier.padding(8.dp),
-//                                    text = story.synopsis,
-//                                    color = MaterialTheme.colorScheme.onSecondaryContainer
-//                                )
-//                                Text(
-//                                    modifier = Modifier
-//                                        .clickable { onStoryClick(story.storyid) }
-//                                        .padding(8.dp),
-//                                    text = "View Chapters",
-//                                    color = MaterialTheme.colorScheme.primary
-//                                )
-//                            }
-//
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun StoryDropDowns(
+    storyList: List<Story>,
+    onStoryClick: (Story) -> Unit,
+    modifier: Modifier = Modifier,
+    onSelectStory: (Story) -> Unit = { },
+    inSelectionMode: Boolean = false,
+    selectedStories: Set<Story> = emptySet()
+) {
+    val haptics = LocalHapticFeedback.current
+
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(1),
+        contentPadding = PaddingValues(0.dp),
+        modifier = modifier
+    ) {
+        items(storyList, key = { it.storyId }) { story ->
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                ExpandableSection(modifier = modifier, title = story.storyName) {
+                    Column {
+                        Text(
+                            modifier = Modifier.padding(8.dp),
+                            text = story.synopsis,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                        Text(
+                            modifier = Modifier
+                                .padding(8.dp)
+                                .clickable {
+                                    if (inSelectionMode) {
+                                        onSelectStory(story)
+                                    } else {
+                                        onStoryClick(story)
+                                    }
+                                },
+                            text = "View Chapters",
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun WorldTopAppBar(
+    worldTitle: String,
+    onUpClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    TopAppBar(
+        title = { Text(worldTitle) },
+        modifier = modifier,
+        navigationIcon = {
+            IconButton(onClick = onUpClick) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack,"Back")
+            }
+        }
+    )
+}
+
+@Composable
+fun AddStoryDialog(
+    onConfirmation: (String) -> Unit,
+    onDismissRequest: () -> Unit,
+) {
+    var story by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = {
+            onDismissRequest()
+        },
+        title = {
+            TextField(
+                label = { Text("Story Name?") },
+                value = story,
+                onValueChange = { story = it },
+                singleLine = true,
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        onConfirmation(story)
+                    }
+                )
+            )
+        },
+        confirmButton = {
+            Button(
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                ),
+                onClick = {
+                    onConfirmation(story)
+                }) {
+                Text(text = "Add")
+            }
+        },
+        dismissButton = {
+            Button(
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondary
+                ),
+                onClick = {
+                    onDismissRequest()
+                }) {
+                Text(text = "Cancel")
+            }
+        },
+    )
+}
+
+@Composable
+fun ExpandableSectionTitle(
+    modifier: Modifier = Modifier,
+    isExpanded: Boolean,
+    title: String
+) {
+    val icon = if (isExpanded) Icons.Rounded.KeyboardArrowUp else Icons.Rounded.KeyboardArrowDown
+    val contentDescription = if (isExpanded) "Collapse section" else "Expand section"
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(shape = RoundedCornerShape(50.dp))
+            .padding(15.dp),
+
+        verticalAlignment = Alignment.CenterVertically,
+
+        ) {
+        Image(
+            modifier = Modifier.size(32.dp),
+            imageVector = icon,
+//         colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimaryContainer),
+            contentDescription = contentDescription
+        )
+        Text(
+            text = title,
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.padding(start = 8.dp),
+            fontWeight = FontWeight.Medium
+        )
+    }
+}
+
+
+@Composable
+fun ExpandableSection(
+    modifier: Modifier = Modifier,
+    title: String,
+    content: @Composable () -> Unit
+) {
+    var isExpanded by rememberSaveable { mutableStateOf(false) }
+    Column(
+        modifier = modifier
+            .clickable { isExpanded = !isExpanded }
+            .background(color = MaterialTheme.colorScheme.primaryContainer)
+            .fillMaxWidth(0.9f)
+    ) {
+        ExpandableSectionTitle(isExpanded = isExpanded, title = title)
+
+        AnimatedVisibility(
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.secondaryContainer)
+                .fillMaxWidth(),
+            visible = isExpanded
+        ) {
+            content()
+        }
+    }
+}

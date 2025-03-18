@@ -10,7 +10,7 @@ interface StoryDao {
     fun getStory(storyId: Long): Flow<Story?>
 
     @Query("SELECT * FROM Story WHERE world_id = :worldId")
-    fun getAllStoriesFromWorldId(worldId: Long): Flow<Story?>
+    fun getAllStoriesFromWorldId(worldId: Long): Flow<List<Story>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun addStory(story: Story): Long

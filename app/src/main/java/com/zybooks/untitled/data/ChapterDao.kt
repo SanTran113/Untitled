@@ -10,7 +10,7 @@ interface ChapterDao {
     fun getChapter(chapterId: Long): Flow<Chapter?>
 
     @Query("SELECT * FROM Chapter WHERE story_id = :storyId")
-    fun getAllChaptersFromStoryId(storyId: Long): Flow<Chapter?>
+    fun getAllChaptersFromStoryId(storyId: Long): Flow<List<Chapter>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun addChapter(chap: Chapter): Long
