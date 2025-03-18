@@ -92,7 +92,8 @@ fun WorldScreen(
             if (!uiState.value.isCabVisible) {
                 BottomButton(
                     onClick = { viewModel.showStoryDialog() },
-                    text = "Story"
+                    text = "STORY",
+                    icon = Icons.Filled.Add
                 )
             }
         }

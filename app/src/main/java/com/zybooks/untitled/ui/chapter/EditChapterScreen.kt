@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.zybooks.untitled.data.Chapter
+import com.zybooks.untitled.ui.components.BottomButton
 import com.zybooks.untitled.ui.components.TopBar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -47,14 +48,14 @@ fun EditChapterScreen(
                 )
         },
         floatingActionButton = {
-            FloatingActionButton(
+            BottomButton(
                 onClick = {
                     viewModel.updateChapter()
                     onSaveClick()
-                }
-            ) {
-                Icon(Icons.Filled.Done, "Save")
-            }
+                },
+                text = "Save",
+                icon = Icons.Filled.Done
+            )
         }
     ) { innerPadding ->
         EditChapterEntry(

@@ -94,7 +94,8 @@ fun StoryScreen(
             if (!uiState.value.isCabVisible) {
                 BottomButton(
                     onClick = { viewModel.showChapterDialog() },
-                    text = "Chapter"
+                    text = "CHAPTER",
+                    icon = Icons.Filled.Add
                 )
             }
         }

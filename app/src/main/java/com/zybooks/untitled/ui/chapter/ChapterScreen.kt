@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.zybooks.untitled.ui.components.BottomButton
 import com.zybooks.untitled.ui.components.TopBar
 
 @Composable
@@ -37,12 +38,12 @@ fun ChapterScreen(
             )
         },
         floatingActionButton = {
-            IconButton(onClick = { onEditClick(uiState.value.chapter.chapterId) }) {
-                Icon(
-                    Icons.Filled.Edit,
-                    contentDescription = "Edit",
+            BottomButton(
+                onClick = { onEditClick(uiState.value.chapter.chapterId) },
+                text = "EDIT",
+                icon = Icons.Filled.Edit
                 )
-            }
+
         }
     ) { innerPadding ->
         ChapterBody (

@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -91,7 +92,8 @@ fun GalaxyScreen(
             if (!uiState.value.isCabVisible) {
                 BottomButton(
                     onClick = { viewModel.showWorldDialog() },
-                    text = "World"
+                    text = "WORLD",
+                    icon = Icons.Filled.Add
                 )
             }
         }
