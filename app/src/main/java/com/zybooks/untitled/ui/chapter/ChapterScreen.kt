@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.zybooks.untitled.ui.components.TopBar
 
 @Composable
 fun ChapterScreen(
@@ -30,8 +31,8 @@ fun ChapterScreen(
 
     Scaffold (
         topBar = {
-            ChapterTopAppBar(
-                chapterTitle = uiState.value.chapter.chapterName,
+            TopBar(
+                title = uiState.value.chapter.chapterName,
                 onUpClick = onUpClick
             )
         },
@@ -63,23 +64,5 @@ fun ChapterBody(
     )
 }
 
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ChapterTopAppBar(
-    chapterTitle: String,
-    onUpClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    TopAppBar(
-        title = { Text(chapterTitle) },
-        modifier = modifier,
-        navigationIcon = {
-            IconButton(onClick = onUpClick) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack,"Back")
-            }
-        }
-    )
-}
 
 

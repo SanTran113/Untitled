@@ -54,6 +54,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.zybooks.untitled.data.Chapter
 import com.zybooks.untitled.ui.components.AddDialog
+import com.zybooks.untitled.ui.components.BottomButton
 import com.zybooks.untitled.ui.components.ExpandableSection
 import com.zybooks.untitled.ui.components.TopBar
 
@@ -91,11 +92,10 @@ fun StoryScreen(
         },
         floatingActionButton = {
             if (!uiState.value.isCabVisible) {
-                FloatingActionButton(
+                BottomButton(
                     onClick = { viewModel.showChapterDialog() },
-                ) {
-                    Icon(Icons.Filled.Add, "Add")
-                }
+                    text = "Chapter"
+                )
             }
         }
     ) { innerPadding ->

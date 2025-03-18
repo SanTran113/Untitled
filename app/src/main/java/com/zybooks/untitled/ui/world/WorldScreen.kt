@@ -52,6 +52,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.zybooks.untitled.data.Story
 import com.zybooks.untitled.ui.components.AddDialog
+import com.zybooks.untitled.ui.components.BottomButton
 import com.zybooks.untitled.ui.components.ExpandableSection
 import com.zybooks.untitled.ui.components.TopBar
 
@@ -89,11 +90,10 @@ fun WorldScreen(
         },
         floatingActionButton = {
             if (!uiState.value.isCabVisible) {
-                FloatingActionButton(
+                BottomButton(
                     onClick = { viewModel.showStoryDialog() },
-                ) {
-                    Icon(Icons.Filled.Add, "Add")
-                }
+                    text = "Story"
+                )
             }
         }
     ) { innerPadding ->
