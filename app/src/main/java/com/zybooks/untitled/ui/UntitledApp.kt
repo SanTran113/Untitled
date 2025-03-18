@@ -10,6 +10,7 @@ import com.zybooks.untitled.ui.chapter.ChapterScreen
 import com.zybooks.untitled.ui.chapter.EditChapterScreen
 import com.zybooks.untitled.ui.galaxy.GalaxyScreen
 import com.zybooks.untitled.ui.story.StoryScreen
+import com.zybooks.untitled.ui.theme.ToDoListTheme
 import com.zybooks.untitled.ui.world.WorldScreen
 import kotlinx.serialization.Serializable
 
@@ -37,21 +38,7 @@ sealed class Routes {
       val chapId: Long
    )
 
-   @Serializable
-   data class Question(
-      val subjectId: Long,
-      val showLastQuestion: Boolean = false
-   )
 
-   @Serializable
-   data class AddQuestion(
-      val subjectId: Long
-   )
-
-   @Serializable
-   data class EditQuestion(
-      val questionId: Long
-   )
 }
 
 @Composable
@@ -113,5 +100,13 @@ fun UntitledApp() {
             onSaveClick = { navController.navigateUp() }
          )
       }
+   }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun UntitledAppPreview() {
+   ToDoListTheme {
+      UntitledApp()
    }
 }

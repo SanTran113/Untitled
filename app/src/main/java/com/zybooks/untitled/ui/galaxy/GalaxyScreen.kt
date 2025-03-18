@@ -73,7 +73,7 @@ fun GalaxyScreen(
                 )
             } else {
                 TopAppBar(
-                    modifier = Modifier.padding(50.dp),
+                    modifier = Modifier.padding(50.dp), // to push down title
                     title = {
                         Text(
                             modifier = Modifier
