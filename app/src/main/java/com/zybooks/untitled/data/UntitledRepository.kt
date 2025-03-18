@@ -25,17 +25,14 @@ class UntitledRepository (context: Context) {
         UntitledDatabase::class.java,
         "untitled.db"
     )
+        .fallbackToDestructiveMigration()
         .addCallback(databaseCallback)
         .build()
 
-    private val galaxyDao = database.galaxyDao()
     private val worldDao = database.worldDao()
     private val storyDao = database.storyDao()
     private val chapterDao = database.chapterDao()
 
-
-//  ------------------------------- GALAXY CALLS -------------------------------
-    fun getGalaxy(galaxy: Galaxy) = galaxyDao.updateGalaxy(galaxy)
 
 //  ------------------------------- WORLD CALLS -------------------------------
     fun getWorld(id: Long) = worldDao.getWorld(id)
@@ -115,17 +112,16 @@ class UntitledRepository (context: Context) {
 //  ------------------------------- STARTER DATA -------------------------------
 
     private fun addStarterData() {
-        var galaxyId = galaxyDao.addGalaxy(Galaxy(galaxyName = "HSR"))
         worldDao.addWorld(World(worldName = "Herta Space Station", imageId = 0))
-        worldDao.addWorld(World(worldName = "Amphoreus", imageId = 1))
-        worldDao.addWorld(World(worldName = "Penacony", imageId = 2))
+        var worldId = worldDao.addWorld(World(worldName = "Amphoreus", imageId = 1))
+        var worldId2 = worldDao.addWorld(World(worldName = "Penacony", imageId = 2))
         worldDao.addWorld(World(worldName = "Xian Zhuo"))
-        storyDao.addStory(
+        var storyId = storyDao.addStory(
             Story(
                 storyName = "Tribbie",
                 synopsis = "This is the story of the Tribos",
                 scratchPad = "",
-                worldId = 1
+                worldId = worldId
             )
         )
         storyDao.addStory(
@@ -133,7 +129,7 @@ class UntitledRepository (context: Context) {
                 storyName = "Aglaea",
                 synopsis = "This is the story of Aglaea",
                 scratchPad = "",
-                worldId = 1
+                worldId = worldId
             )
         )
         storyDao.addStory(
@@ -141,7 +137,7 @@ class UntitledRepository (context: Context) {
                 storyName = "Phainon",
                 synopsis = "This is the story of Mydei",
                 scratchPad = "",
-                worldId = 1
+                worldId = worldId
             )
         )
         storyDao.addStory(
@@ -149,14 +145,14 @@ class UntitledRepository (context: Context) {
                 storyName = "Sunday",
                 synopsis = "This is the story of Sunday",
                 scratchPad = "",
-                worldId = 2
+                worldId = worldId2
             )
         )
         chapterDao.addChapter(
             Chapter(
                 chapterName = "Guiding Light",
                 chapterBody = "One..Two..Three..Children?",
-                storyId = 0
+                storyId = storyId
             )
         )
         chapterDao.addChapter(
@@ -164,7 +160,7 @@ class UntitledRepository (context: Context) {
                 chapterName = "Laughter and Lament",
                 chapterBody = "Not only do the three children share each other's senses, " +
                         "their souls are also interconnected",
-                storyId = 0
+                storyId = storyId
             )
         )
     }
