@@ -53,6 +53,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.zybooks.untitled.data.Chapter
+import com.zybooks.untitled.data.Story
 import com.zybooks.untitled.ui.components.AddDialog
 import com.zybooks.untitled.ui.components.BottomButton
 import com.zybooks.untitled.ui.components.ExpandableSection
@@ -66,7 +67,7 @@ fun StoryScreen(
         factory = StoryViewModel.Factory
     ),
     onUpClick: () -> Unit = {},
-    onChapterClick: (Chapter) -> Unit = {}
+    onChapterClick: (Chapter) -> Unit = {},
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -110,6 +111,9 @@ fun StoryScreen(
             Synopsis(
                 modifier = modifier,
                 synopsis = uiState.value.story.synopsis,
+                onSynopsisClick = { newSynopsis -> viewModel.updateSynopsis(newSynopsis)},
+                onEditSynopsis = { viewModel.updateStory(it)},
+                story = uiState.value.story
             )
 
             ChapterSection(
@@ -131,18 +135,59 @@ fun StoryScreen(
 @Composable
 fun Synopsis(
     modifier: Modifier = Modifier,
-    synopsis: String
+    synopsis: String,
+    onSynopsisClick: (String) -> Unit,
+    onEditSynopsis: (Story) -> Unit,
+    story: Story
 ) {
-    ExpandableSection(modifier = modifier, title = "SYNOPSIS"
-    ) {
+    var isEditing by remember { mutableStateOf(false) }
+    var editedSynopsis by remember { mutableStateOf(synopsis) }
+
+    ExpandableSection(modifier = modifier, title = "SYNOPSIS") {
         Text(
-            modifier = Modifier.padding(5.dp),
             text = synopsis,
+            modifier = Modifier
+                .padding(8.dp)
+                .clickable {
+                    editedSynopsis = synopsis
+                    isEditing = true
+                },
             color = MaterialTheme.colorScheme.onSecondaryContainer,
             fontWeight = FontWeight.SemiBold
         )
+
+        if (isEditing) {
+            AlertDialog(
+                onDismissRequest = { isEditing = false },
+                title = { Text("Edit Synopsis") },
+                text = {
+                    TextField(
+                        value = editedSynopsis,
+                        onValueChange = { editedSynopsis = it },
+                        singleLine = false
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            onEditSynopsis(story.copy(synopsis = editedSynopsis))
+                            onSynopsisClick(editedSynopsis)
+                            isEditing = false
+                        }
+                    ) {
+                        Text("Save")
+                    }
+                },
+                dismissButton = {
+                    Button(onClick = { isEditing = false }) {
+                        Text("Cancel")
+                    }
+                }
+            )
+        }
     }
 }
+
 
 @Composable
 fun ChapterSection(

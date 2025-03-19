@@ -41,6 +41,7 @@ class StoryViewModel(
     private val storyId: Long = savedStateHandle.toRoute<Routes.Story>().storyId
     private val selectedChapters = MutableStateFlow(emptySet<Chapter>())
     private val isChapterDialogVisible = MutableStateFlow(false)
+    private val selectedStory = MutableStateFlow(emptySet<Story>())
 
     val uiState: StateFlow<StoryScreenUiState> = transformedFlow()
         .stateIn(
@@ -71,8 +72,21 @@ class StoryViewModel(
         selectedChapters.value.contains(chapter)
     }
 
+    fun selectStory(story: Story) {
+        selectedStory.value.contains(story)
+    }
+
     fun hideCab() {
         selectedChapters.value = emptySet()
+    }
+
+    fun updateStory(story: Story) {
+        untitledRepository.updateStory(story)
+    }
+
+    fun updateSynopsis(newSynopsis: String) {
+        val updatedStory = uiState.value.story.copy(synopsis = newSynopsis)
+        untitledRepository.updateStory(updatedStory)
     }
 
     fun deleteSelectedStory() {

@@ -1,6 +1,9 @@
 package com.zybooks.untitled.ui.galaxy
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -104,7 +107,8 @@ fun GalaxyScreen(
             selectedWorlds = uiState.value.selectedWorlds,
             onWorldClick = onWorldClick,
             onSelectWorld = { viewModel.selectWorld(it) },
-            modifier = modifier.padding(innerPadding)
+            modifier = modifier
+                .padding(innerPadding)
         )
     }
 }
@@ -126,16 +130,19 @@ fun GalaxyGrid(
         contentPadding = PaddingValues(20.dp),
         modifier = modifier
     ) {
+        val shape = RoundedCornerShape(100)
+
         items(worldList, key = { it.worldId }) { world ->
             Card(
                 colors = CardDefaults.cardColors(
-                    Color.LightGray
+                    Color.Transparent
                 ),
-                shape = RoundedCornerShape(100),
+                shape = shape,
                 modifier = Modifier
                     .animateItem()
                     .height(180.dp)
                     .padding(10.dp)
+                    .border(BorderStroke(1.dp, Color.Black), shape)
                     .combinedClickable(
                         onLongClick = {
                             haptics.performHapticFeedback(HapticFeedbackType.LongPress)
