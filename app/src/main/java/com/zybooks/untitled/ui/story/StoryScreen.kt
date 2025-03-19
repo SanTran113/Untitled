@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -58,6 +60,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.min
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.zybooks.untitled.data.Chapter
@@ -224,13 +227,13 @@ fun ChapterSection(
             HorizontalDivider(
                 modifier = Modifier
                     .fillMaxWidth().width(1.dp)
-                    .padding(vertical = 3.dp),
+                    .padding(vertical = 3.dp)
+                    .padding(bottom = 15.dp),
                 color = Color.Black
             )
 
             LazyVerticalGrid(
                 columns = GridCells.Fixed(1),
-                contentPadding = PaddingValues(vertical = 15.dp),
                 verticalArrangement = Arrangement.spacedBy(15.dp)
             ) {
                 items(chapterList, key = { it.chapterId }) { chapter ->
@@ -276,12 +279,21 @@ fun ScracthPad(
     Box(modifier = modifier
     ) {
         Column (
-            modifier = Modifier.padding(30.dp)
+            modifier = Modifier.padding(start = 30.dp, end = 30.dp)
         ){
             Text(
                 text = "SCRATCH PAD",
                 fontWeight = FontWeight.Medium,
                 style = MaterialTheme.typography.headlineSmall
+            )
+
+            HorizontalDivider(
+                modifier = Modifier
+                    .fillMaxWidth().width(1.dp)
+                    .padding(bottom = 10.dp)
+                    .padding(vertical = 3.dp),
+
+                color = Color.Black
             )
 
             if (isEditing) {
@@ -325,7 +337,8 @@ fun ScracthPad(
                         .clickable { isEditing = true }
                         .background(Color.LightGray.copy(alpha = 0.3f))
                         .fillMaxWidth()
-                        .height(50.dp)
+                        .defaultMinSize(minHeight = 60.dp)
+                        .padding(15.dp)
                 )
             }
         }
