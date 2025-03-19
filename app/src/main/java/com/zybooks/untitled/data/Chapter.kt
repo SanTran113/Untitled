@@ -18,7 +18,7 @@ data class Chapter (
 
     var chapterName: String = "",
     var chapterBody: String = "",
-    var wordCount: Long = 0,
+    var wordCount: Int = 0,
 
     @ColumnInfo(name = "story_id")
     var storyId: Long = 0

@@ -60,11 +60,6 @@ class ChapterViewModel (
         )
     }
 
-    fun hideCab() {
-        selectedChap.value = emptySet()
-    }
-
-
     fun showEditDialog() {
         isEditDialogVisible.value = true
     }

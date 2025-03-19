@@ -80,7 +80,7 @@ fun EditChapterEntry (
 
     TextField(
         value = chapter.chapterBody,
-        onValueChange = { onEditChapterBody(chapter.copy(chapterBody = it)) },
+        onValueChange = { onEditChapterBody(chapter.copy(chapterBody = it, wordCount = countWords(it))) },
         singleLine = false,
         textStyle = TextStyle.Default.copy(fontSize = 20.sp),
         keyboardActions = KeyboardActions(
@@ -94,4 +94,8 @@ fun EditChapterEntry (
             .background(color = Color.LightGray),
         colors = OutlinedTextFieldDefaults.colors( unfocusedContainerColor = Color(0xFFDEDEDE) )
     )
+}
+
+private fun countWords(text: String): Int {
+    return text.trim().split("\\s+".toRegex()).count { it.isNotEmpty() }
 }

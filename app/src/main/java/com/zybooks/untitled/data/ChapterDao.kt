@@ -18,6 +18,10 @@ interface ChapterDao {
     @Update
     fun updateChapter(chap: Chapter)
 
+    @Query("UPDATE Chapter SET wordCount = :wordCount WHERE chapterId = :chapterId")
+    fun updateWordCount(chapterId: Long, wordCount: Int)
+
+
     @Delete
     fun deleteChapter(chap: Chapter)
 }

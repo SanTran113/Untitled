@@ -104,6 +104,12 @@ class UntitledRepository (context: Context) {
         }
     }
 
+    fun updateWordCount(id: Long, wordCount: Int) {
+        CoroutineScope(Dispatchers.IO).launch {
+            chapterDao.updateWordCount(id, wordCount)
+        }
+    }
+
     fun deleteStory(chapter: Chapter) {
         CoroutineScope(Dispatchers.IO).launch {
             chapterDao.deleteChapter(chapter)
@@ -153,6 +159,7 @@ class UntitledRepository (context: Context) {
             Chapter(
                 chapterName = "Guiding Light",
                 chapterBody = "One..Two..Three..Children?",
+                wordCount = 4,
                 storyId = storyId
             )
         )
@@ -161,6 +168,7 @@ class UntitledRepository (context: Context) {
                 chapterName = "Laughter and Lament",
                 chapterBody = "Not only do the three children share each other's senses, " +
                         "their souls are also interconnected",
+                wordCount = 15,
                 storyId = storyId
             )
         )
