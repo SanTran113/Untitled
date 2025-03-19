@@ -1,25 +1,17 @@
 package com.zybooks.untitled.ui.story
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -27,40 +19,29 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.rounded.KeyboardArrowDown
-import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.min
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.zybooks.untitled.data.Chapter
@@ -137,7 +118,7 @@ fun StoryScreen(
                 modifier = modifier.padding(top = 7.dp)
             )
 
-            ScracthPad(
+            ScratchPad(
                 modifier = modifier.padding(top = 7.dp),
                 onScratchPadClick = { onScratchPadClick(uiState.value.story.storyId) },
                 story = uiState.value.story,
@@ -157,48 +138,60 @@ fun Synopsis(
 ) {
     var isEditing by remember { mutableStateOf(false) }
     var editedSynopsis by remember { mutableStateOf(synopsis) }
+    val focusManager = LocalFocusManager.current
+    val shape = RoundedCornerShape(20)
+    Column (modifier = modifier) {
+        ExpandableSection(modifier = Modifier, title = "SYNOPSIS") {
+            Text(
+                text = synopsis,
+                modifier = Modifier
+                    .padding(8.dp)
+                    .clickable {
+                        editedSynopsis = synopsis
+                        isEditing = true
+                    },
+                fontWeight = FontWeight.SemiBold
+            )
 
-    ExpandableSection(modifier = modifier, title = "SYNOPSIS") {
-        Text(
-            text = synopsis,
-            modifier = Modifier
-                .padding(8.dp)
-                .clickable {
-                    editedSynopsis = synopsis
-                    isEditing = true
-                },
-            color = MaterialTheme.colorScheme.onSecondaryContainer,
-            fontWeight = FontWeight.SemiBold
-        )
-
-        if (isEditing) {
-            AlertDialog(
-                onDismissRequest = { isEditing = false },
-                title = { Text("Edit Synopsis") },
-                text = {
-                    TextField(
-                        value = editedSynopsis,
-                        onValueChange = { editedSynopsis = it },
-                        singleLine = false
-                    )
-                },
-                confirmButton = {
-                    Button(
-                        onClick = {
+            if (isEditing) {
+                TextField(
+                    value = editedSynopsis,
+                    onValueChange = { editedSynopsis = it },
+                    singleLine = false,
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            focusManager.clearFocus()
                             onEditStory(story.copy(synopsis = editedSynopsis))
-                            onSynopsisClick(editedSynopsis)
                             isEditing = false
                         }
-                    ) {
-                        Text("Save")
-                    }
+                    ),
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Done
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                )
+            }
+
+        }
+
+        if (isEditing) {
+            Button(
+                onClick = {
+                    focusManager.clearFocus()
+                    isEditing = false
+                    onEditStory(story.copy(synopsis = editedSynopsis))
                 },
-                dismissButton = {
-                    Button(onClick = { isEditing = false }) {
-                        Text("Cancel")
-                    }
-                }
-            )
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                modifier = Modifier
+                    .padding(top = 8.dp)
+                    .border(BorderStroke(1.dp, Color.Black), shape)
+            ) {
+                Text(
+                    text = "Save",
+                    color = Color.DarkGray
+                )
+            }
         }
     }
 }
@@ -265,7 +258,7 @@ fun ChapterSection(
 }
 
 @Composable
-fun ScracthPad(
+fun ScratchPad(
     modifier: Modifier = Modifier,
     onScratchPadClick: (Long) -> Unit = {},
     story: Story,
@@ -311,6 +304,7 @@ fun ScracthPad(
                     keyboardOptions = KeyboardOptions(
                         imeAction = ImeAction.Done
                     ),
+                    colors = OutlinedTextFieldDefaults.colors( unfocusedContainerColor = Color.Transparent ),
                     modifier = Modifier
                         .fillMaxWidth()
                 )
