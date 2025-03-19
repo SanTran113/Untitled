@@ -9,6 +9,7 @@ How to make a drop down component and animate it
 Android SDK Version: 34
 
 Dependencies:
+
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)
     ksp(libs.androidx.room.compiler)
