@@ -45,7 +45,7 @@ fun ExpandableSection(
             .clickable { isExpanded = !isExpanded }
 //            .background(color = MaterialTheme.colorScheme.primaryContainer)
             .fillMaxWidth(0.9f)
-            .border(2.dp, Color.Black, RoundedCornerShape(8.dp))
+            .border(1.dp, Color.Black, RoundedCornerShape(8.dp))
     ) {
         ExpandableSectionTitle(isExpanded = isExpanded, title = title)
 

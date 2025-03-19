@@ -1,5 +1,7 @@
 package com.zybooks.untitled.ui.chapter
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -10,12 +12,14 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -78,7 +82,7 @@ fun EditChapterEntry (
         value = chapter.chapterBody,
         onValueChange = { onEditChapterBody(chapter.copy(chapterBody = it)) },
         singleLine = false,
-        textStyle = TextStyle.Default.copy(fontSize = 30.sp),
+        textStyle = TextStyle.Default.copy(fontSize = 20.sp),
         keyboardActions = KeyboardActions(
             onDone = { focusManager.clearFocus() }
         ),
@@ -86,5 +90,8 @@ fun EditChapterEntry (
             imeAction = ImeAction.Done
         ),
         modifier = modifier
+            .fillMaxWidth()
+            .background(color = Color.LightGray),
+        colors = OutlinedTextFieldDefaults.colors( unfocusedContainerColor = Color(0xFFDEDEDE) )
     )
 }

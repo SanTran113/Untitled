@@ -102,11 +102,13 @@ fun StoryScreen(
     ) { innerPadding ->
         Column (
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier
+                .padding(innerPadding)
+                .padding(top = 7.dp)
         ){
             // Synopsis
             Synopsis(
-                modifier = Modifier,
+                modifier = modifier,
                 synopsis = uiState.value.story.synopsis,
             )
 
@@ -116,11 +118,11 @@ fun StoryScreen(
                 selectedChapters = uiState.value.selectedChapters,
                 onChapterClick = onChapterClick,
                 onSelectChapter = { viewModel.selectChapter(it)},
-                modifier = Modifier
+                modifier = modifier.padding(top = 7.dp)
             )
 
             ScracthPad(
-                modifier = Modifier
+                modifier = modifier.padding(top = 7.dp)
             )
         }
     }
@@ -154,7 +156,7 @@ fun ChapterSection(
     Box(modifier = modifier) {
         Column (
             modifier = Modifier
-                .padding(20.dp)
+                .padding(30.dp)
         ){
             Text(
                 text = "CHAPTERS",
@@ -171,8 +173,8 @@ fun ChapterSection(
 
             LazyVerticalGrid(
                 columns = GridCells.Fixed(1),
-                contentPadding = PaddingValues(vertical = 10.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+                contentPadding = PaddingValues(vertical = 15.dp),
+                verticalArrangement = Arrangement.spacedBy(15.dp)
             ) {
                 items(chapterList, key = { it.chapterId }) { chapter ->
                     Row(
