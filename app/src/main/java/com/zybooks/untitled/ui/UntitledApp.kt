@@ -38,6 +38,10 @@ sealed class Routes {
       val chapId: Long
    )
 
+   @Serializable
+   data class EditStory(
+      val storyId: Long
+   )
 
 }
 
@@ -77,6 +81,11 @@ fun UntitledApp() {
             onChapterClick = { chapter ->
                navController.navigate(
                   Routes.Chapter(chapId = chapter.chapterId)
+               )
+            },
+            onScratchPadClick = { storyId ->
+               navController.navigate(
+                  Routes.EditStory(storyId = storyId)
                )
             }
          )

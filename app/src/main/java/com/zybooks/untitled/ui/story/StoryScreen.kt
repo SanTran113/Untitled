@@ -1,15 +1,19 @@
 package com.zybooks.untitled.ui.story
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -19,6 +23,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -48,7 +53,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -68,6 +76,7 @@ fun StoryScreen(
     ),
     onUpClick: () -> Unit = {},
     onChapterClick: (Chapter) -> Unit = {},
+    onScratchPadClick: (Long) -> Unit = {}
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -112,7 +121,7 @@ fun StoryScreen(
                 modifier = modifier,
                 synopsis = uiState.value.story.synopsis,
                 onSynopsisClick = { newSynopsis -> viewModel.updateSynopsis(newSynopsis)},
-                onEditSynopsis = { viewModel.updateStory(it)},
+                onEditStory = { viewModel.updateStory(it)},
                 story = uiState.value.story
             )
 
@@ -126,7 +135,10 @@ fun StoryScreen(
             )
 
             ScracthPad(
-                modifier = modifier.padding(top = 7.dp)
+                modifier = modifier.padding(top = 7.dp),
+                onScratchPadClick = { onScratchPadClick(uiState.value.story.storyId) },
+                story = uiState.value.story,
+                onEditStory = { viewModel.updateStory(it)},
             )
         }
     }
@@ -137,7 +149,7 @@ fun Synopsis(
     modifier: Modifier = Modifier,
     synopsis: String,
     onSynopsisClick: (String) -> Unit,
-    onEditSynopsis: (Story) -> Unit,
+    onEditStory: (Story) -> Unit,
     story: Story
 ) {
     var isEditing by remember { mutableStateOf(false) }
@@ -170,7 +182,7 @@ fun Synopsis(
                 confirmButton = {
                     Button(
                         onClick = {
-                            onEditSynopsis(story.copy(synopsis = editedSynopsis))
+                            onEditStory(story.copy(synopsis = editedSynopsis))
                             onSynopsisClick(editedSynopsis)
                             isEditing = false
                         }
@@ -252,14 +264,70 @@ fun ChapterSection(
 @Composable
 fun ScracthPad(
     modifier: Modifier = Modifier,
+    onScratchPadClick: (Long) -> Unit = {},
+    story: Story,
+    onEditStory: (Story) -> Unit,
 ) {
-    Box(modifier = modifier) {
-        Column {
+    var isEditing by remember { mutableStateOf(false) }
+    var scratchPadText by remember { mutableStateOf(story.scratchPad) }
+    val focusManager = LocalFocusManager.current
+    val shape = RoundedCornerShape(20)
+
+    Box(modifier = modifier
+    ) {
+        Column (
+            modifier = Modifier.padding(30.dp)
+        ){
             Text(
                 text = "SCRATCH PAD",
                 fontWeight = FontWeight.Medium,
                 style = MaterialTheme.typography.headlineSmall
             )
+
+            if (isEditing) {
+                TextField(
+                    value = scratchPadText,
+                    onValueChange = { scratchPadText = it },
+                    singleLine = false,
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            focusManager.clearFocus()
+                            onEditStory(story.copy(scratchPad = scratchPadText))
+                            isEditing = false
+                        }
+                    ),
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Done
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                )
+                Button(
+                    onClick = {
+                        focusManager.clearFocus()
+                        isEditing = false
+                        onEditStory(story.copy(scratchPad = scratchPadText))
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                    modifier = Modifier
+                        .padding(top = 8.dp)
+                        .border(BorderStroke(1.dp, Color.Black), shape)
+                ) {
+                    Text(
+                        text = "Save",
+                        color = Color.DarkGray
+                    )
+                }
+            } else {
+                Text (
+                    text = scratchPadText,
+                    modifier = Modifier
+                        .clickable { isEditing = true }
+                        .background(Color.LightGray.copy(alpha = 0.3f))
+                        .fillMaxWidth()
+                        .height(50.dp)
+                )
+            }
         }
     }
 }
